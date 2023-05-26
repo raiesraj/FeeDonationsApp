@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "994140492892",
+    "project_id": "feedonationsfyp",
+    "storage_bucket": "feedonationsfyp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:994140492892:android:0795a31c8b8a27d6898299",
+        "android_client_info": {
+          "package_name": "com.example.feedonations"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "994140492892-fas6shidkste16evo7t2tqbl95bcsn1u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASYIWGx1Wx99RIrxKa8NVOkOO5ZnNnzKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "994140492892-fas6shidkste16evo7t2tqbl95bcsn1u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
