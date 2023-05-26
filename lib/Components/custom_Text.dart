@@ -8,18 +8,22 @@ class CustomText extends StatelessWidget {
   final FontWeight fontWeight;
   final double textSize;
 
+
+
   const CustomText({
     super.key, required this.text,   this.color, required this.fontWeight, required this.textSize,
   });
-
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: GoogleFonts.poppins(
-        fontSize: textSize,
-        fontWeight: fontWeight,
-        color: color,
+    return Padding(
+      padding: const EdgeInsets.only(),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(
+          fontSize: textSize,
+          fontWeight: fontWeight,
+          color: color,
+        ),
       ),
     );
   }
