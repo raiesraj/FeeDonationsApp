@@ -1,12 +1,14 @@
 import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Provider/signup_provider.dart';
+import 'package:feedonations/Screens/signin_screen.dart';
 import 'package:feedonations/Utilis/appText.dart';
 import 'package:feedonations/Utilis/images.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 import '../Components/custom_Text.dart';
+import '../Components/custom_texflied.dart';
+import '../Components/textfield_title.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -16,23 +18,24 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-
-    SignUpAuthProvider signUpAuthProvider = Provider.of<SignUpAuthProvider>(context);
+    SignUpAuthProvider signUpAuthProvider =
+        Provider.of<SignUpAuthProvider>(context);
 
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+              
+
               40.ph,
               Center(
                 child: Image.asset(AppImages().appLogo),
@@ -48,70 +51,74 @@ class _SignUpScreenState extends State<SignUpScreen> {
               6.ph,
               Center(
                 child: CustomText(
-                    text: AppText().startY,
-                    fontWeight: FontWeight.w400,
-                    textSize: 14,
+                  text: AppText().startY,
+                  fontWeight: FontWeight.w400,
+                  textSize: 14,
                 ),
               ),
               21.ph,
-              const TextFiledTitle(title: 'Name',),
-               CustomTextFiled(
-                 controller: nameController,
-               ),
+              const TextFiledTitle(
+                title: 'Name',
+              ),
+              CustomTextFiled(
+                hintText: "Name",
+                controller: nameController,
+              ),
               const TextFiledTitle(
                 title: "Email Id",
               ),
-               CustomTextFiled(
+              CustomTextFiled(
+                hintText: "EmailId",
                 controller: emailController,
               ),
               const TextFiledTitle(
                 title: "Password",
               ),
-                CustomTextFiled(
-                 controller: passwordController,
-               ),
-                28.ph,
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 27),
-                height: 48,
-                decoration:  BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.blue,
-                ),
-                child: const Center(
-                  child: CustomText(
-                    text: "Sign Up",
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white,
-                    textSize: 16,
-                  ),
-                ),
+              CustomTextFiled(
+                hintText: 'Password',
+                controller: passwordController,
+              ),
+              28.ph,
+              MyButton(
+                title: "Sign Up",
+                onTaP: () {
+                  signUpAuthProvider.signUpValidation(
+                      context: context,
+                      name: nameController,
+                      email: emailController,
+                      password: passwordController);
+                },
               ),
               10.ph,
-              InkWell(
-                onTap: (){
-                  signUpAuthProvider.signUpValidation(context: context, name: nameController, email: emailController, password: passwordController);
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 27),
-                  height: 48,
-                  decoration:  BoxDecoration(
-                    border: Border.all(color: Colors.blueAccent,width: 2),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child:  Center(
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        Image.asset(AppImages().appLogo,width: 30,),
-                        15.pw,
-                        signUpAuthProvider.loading ? CircularProgressIndicator() : Text("Sigin"),
-                        const Spacer(),
-                      ],
-                    ),
-                  ),
-                ),
-              )
+              ImageButton(
+                  onTap: () {},
+                  signUpAuthProvider: signUpAuthProvider,
+                  nameController: nameController,
+                  emailController: emailController,
+                  passwordController: passwordController),
+              32.ph,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CustomText(
+                      text: "Already have an account?\t\t",
+                      fontWeight: FontWeight.w400,
+                      textSize: 14),
+                  InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SignInScreen()));
+                      },
+                      child: const CustomText(
+                        text: "Login",
+                        fontWeight: FontWeight.w400,
+                        textSize: 14,
+                        color: Colors.teal,
+                      )),
+                ],
+              ),
             ],
           ),
         ),
@@ -120,42 +127,82 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 }
 
-class TextFiledTitle extends StatelessWidget {
-  final String title;
-  const TextFiledTitle({
-    super.key, required this.title,
+class ImageButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const ImageButton({
+    super.key,
+    required this.signUpAuthProvider,
+    required this.nameController,
+    required this.emailController,
+    required this.passwordController,
+    required this.onTap,
   });
+
+  final SignUpAuthProvider signUpAuthProvider;
+  final TextEditingController nameController;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
 
   @override
   Widget build(BuildContext context) {
-    return  Padding(
-      padding: const EdgeInsets.only(left: 27),
-      child: CustomText(text: title, fontWeight: FontWeight.w400, textSize: 14,color: Colors.black),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 27),
+        height: 48,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.blueAccent, width: 1),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Spacer(),
+              Image.asset(
+                AppImages().googleLogo,
+                width: 30,
+              ),
+              15.pw,
+              signUpAuthProvider.loading
+                  ? const CircularProgressIndicator()
+                  : const Text("SignIn"),
+              const Spacer(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
 
-class CustomTextFiled extends StatelessWidget {
-  final TextEditingController controller;
+class MyButton extends StatelessWidget {
+  final VoidCallback onTaP;
+  final String title;
 
-  const CustomTextFiled({
-    super.key, required this.controller,
+  const MyButton({
+    super.key,
+    required this.onTaP, required this.title,
   });
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 27,vertical: 5),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: "Name",
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black),
-            borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: onTaP,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 27),
+        height: 48,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: Colors.blue,
+        ),
+        child:  Center(
+          child: CustomText(
+            text: title,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+            textSize: 16,
           ),
         ),
       ),
