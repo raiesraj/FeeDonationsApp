@@ -44,7 +44,7 @@ class SignUpAuthProvider with ChangeNotifier {
         }).then((value) => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const HomepageScreen())));
+                    builder: (context) => const HomePageScreen())));
         loading = false;
         notifyListeners();
       } on FirebaseException catch (e) {

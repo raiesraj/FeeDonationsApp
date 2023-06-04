@@ -1,10 +1,23 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Provider/signin_provider.dart';
 import 'package:feedonations/Provider/signup_provider.dart';
+import 'package:feedonations/Screens/Donations.dart';
+import 'package:feedonations/Screens/googlePay.dart';
+import 'package:feedonations/Screens/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+
+import 'Constant/bottom_navigation.dart';
+import 'Provider/homescreen_provider.dart';
+import 'Screens/testing.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,14 +36,14 @@ class MyApp extends StatelessWidget {
           create: (context) => SignUpAuthProvider(),
         ),
         ChangeNotifierProvider(create: (context) => SignInProviderAuth()),
-        // ChangeNotifierProvider(create: (context) => HomeScreenProvider()),
+        ChangeNotifierProvider(create: (context) => HomeScreenProvider()),
       ],
       child: MaterialApp(
         title: 'Fee Donations',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const TestingScreen(),
+        home:  BottomNavigationExample(),
       ),
     );
   }
@@ -47,23 +60,10 @@ class _TestingScreenState extends State<TestingScreen> {
   final emailController = TextEditingController();
   final nameController = TextEditingController();
   final ageController = TextEditingController();
+  File? profilePic;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  //
-  // testIng() async {
-  //   DocumentSnapshot snapshot = await FirebaseFirestore.instance
-  //       .collection("students")
-  //       .doc("6WouRCcULDY9vl6U3ifWhA9r0F33")
-  //       .get();
-  //   print(snapshot.data().toString());
-  // }
-  //
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   testIng();
-  //   super.initState();
-  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,22 +74,37 @@ class _TestingScreenState extends State<TestingScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            30.ph,
+            CupertinoButton(
+                onPressed: () async {
+                  XFile? selectedImage = await ImagePicker()
+                      .pickImage(source: ImageSource.gallery);
+
+                  if (selectedImage != null) {
+                    File convertedFile = File(selectedImage.path);
+                    setState(() {
+                      profilePic = convertedFile;
+                    });
+                  } else {
+                    print("no image selected");
+                  }
+                },
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundImage:
+                      (profilePic != null) ? FileImage(profilePic!) : null,
+                ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text("Pick"),
+            ),
             TextFormField(
               controller: nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   hintText: "Name",
-                  suffixIcon: InkWell(
-                      onTap: () async {
-                        Map<String, dynamic> newUserData = {
-                          "name": nameController.text,
-                          "email": emailController.text,
-                          'age': ageController.text
-                        };
-                        _firestore.collection("Testing").doc("12345").update({
-                          "name": nameController,
-                        });
-                      },
-                      child: Icon(Icons.edgesensor_high))),
+
+              ),
             ),
             TextFormField(
               controller: emailController,
@@ -102,10 +117,20 @@ class _TestingScreenState extends State<TestingScreen> {
             20.ph,
             ElevatedButton(
               onPressed: () async {
+                UploadTask uploadTask = FirebaseStorage.instance
+                    .ref()
+                    .child("profilePictures")
+                    .child(const Uuid().v1())
+                    .putFile(profilePic!);
+
+                TaskSnapshot taskSnapshot = await uploadTask;
+                String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+
                 Map<String, dynamic> newUserData = {
                   "name": nameController.text,
                   "email": emailController.text,
-                  'age': ageController.text
+                  'age': ageController.text,
+                  "profilePic": downloadUrl
                 };
                 _firestore.collection("Testing").doc().set(
                       newUserData,
@@ -114,33 +139,41 @@ class _TestingScreenState extends State<TestingScreen> {
               child: const Text("Submit"),
             ),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection("Testing").snapshots(),
-              builder: (context, snapshot) {
+                stream: FirebaseFirestore.instance
+                    .collection("Testing")
+                    .snapshots(),
+                builder: (context, AsyncSnapshot snapshot) {
+                  if (snapshot.connectionState == ConnectionState.active) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return Expanded(
+                        child: ListView.builder(
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              Map<String, dynamic> userMap =
+                                  snapshot.data!.docs[index].data()
+                                      as Map<String, dynamic>;
+                              return ListTile(
+                                title: Text(userMap["name"]),
+                                subtitle: Text(userMap["email"]),
+                                leading: Text(userMap["age"]),
+                                trailing: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    userMap["profilePic"].toString(),
+                                  ),
+                                ),
+                                // leading: CircleAvatar(
+                                //   backgroundImage: NetworkImage(userMap["profilePic"]),
 
-                if(snapshot.connectionState == ConnectionState.active){
-                  if(snapshot.hasData && snapshot.data !=null){
-                    return Expanded(
-                      child: ListView.builder(
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, index){
-                            Map<String, dynamic> userMap = snapshot.data!.docs[index].data() as Map<String,dynamic>;
-
-                            return ListTile(
-                              title: Text(userMap['name']),
-                            );
-                          }
-                      ),
-                    );
+                              );
+                            }),
+                      );
+                    } else {
+                      return const Text("No data");
+                    }
+                  } else {
+                    return const CircularProgressIndicator();
                   }
-                  else{
-                    return const Text("No data");
-                  };
-                }
-                else{
-                  return const CircularProgressIndicator();
-                }
-            }
-            )
+                })
           ],
         ),
       ),
