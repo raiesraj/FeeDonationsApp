@@ -16,7 +16,7 @@ class _UniversityScreenState extends State<UniversityScreen> {
         title: Text("University"),
       ),
       body: Column(
-        children: [
+        children: const [
           DataFromFirebase(data: "University")
         ],
       ),

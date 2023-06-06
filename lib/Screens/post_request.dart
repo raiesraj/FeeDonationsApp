@@ -1,4 +1,5 @@
 import 'package:feedonations/Constant/sized_box.dart';
+import 'package:feedonations/Screens/university_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,9 +7,7 @@ import 'package:provider/provider.dart';
 import '../Components/custom_Text.dart';
 import '../Components/custom_texflied.dart';
 import '../Provider/homescreen_provider.dart';
-import '../Routes/routes.dart';
-import 'Donations.dart';
-import 'googlePay.dart';
+
 
 class PostRequestScreen extends StatefulWidget {
   const PostRequestScreen({Key? key}) : super(key: key);
@@ -18,10 +17,10 @@ class PostRequestScreen extends StatefulWidget {
 }
 
 class _PostRequestScreenState extends State<PostRequestScreen> {
-  TextEditingController name = TextEditingController();
+  TextEditingController nameController = TextEditingController();
 
 
-  String? selectedValue;
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,18 +40,29 @@ class _PostRequestScreenState extends State<PostRequestScreen> {
             onPressed: () {
               homeScreenProvider.selectImage(context);
             },
-            child: CircleAvatar(
+            child:
+
+
+
+            CircleAvatar(
                 radius: 50,
                 backgroundImage: (homeScreenProvider.profilePic != null)
                     ? FileImage(homeScreenProvider.profilePic!)
                     : null),
           ),
-            homeScreenProvider.myDropDown(),
+
+
+           homeScreenProvider.myDropDown(),
+
+
           20.ph,
-          CustomTextFiled(controller: name, hintText: "Name"),
+          CustomTextFiled(controller: nameController, hintText: "Name"),
           ElevatedButton(
             onPressed: () {
-              homeScreenProvider.sendData(nameController: name,);
+              //homeScreenProvider.selectImage(context);
+             homeScreenProvider.myDropDown();
+              homeScreenProvider.sendData(nameController: nameController,context: context);
+
             },
             child: const Text("Submit"),
           )

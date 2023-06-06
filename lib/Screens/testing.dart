@@ -190,56 +190,54 @@ class DataFromFirebase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection(data)
-            .orderBy("timestamp", descending: true)
-            .limit(4)
-            .snapshots(),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    ///Getting Data bY calling userMap
-                    Map<String, dynamic> userMap =
-                    snapshot.data!.docs[index].data()
-                    as Map<String, dynamic>;
-                    return Column(
-                      children: [
-                        // Container(
-                        //   height: 100,
-                        //   width: 200,
-                        //   color: Colors.red,
-                        //    child: Column(
-                        //      children: [
-                        //        Image(
-                        //          fit: BoxFit.fitWidth,
-                        //          height: 80,
-                        //          image: NetworkImage(
-                        //    userMap["profilePic"].toString(),
-                        //        ),
-                        //        ),
-                        //        Text(userMap["name"]),
-                        //      ],
-                        //    )
-                        // ),
-                        BeautifulCard(imageUrl: userMap["profilePic"], userName: userMap["name"]),
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection(data)
+          .orderBy("timestamp", descending: true)
+          .limit(4)
+          .snapshots(),
+      builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  ///Getting Data bY calling userMap
+                  Map<String, dynamic> userMap =
+                  snapshot.data!.docs[index].data()
+                  as Map<String, dynamic>;
+                  return Column(
+                    children: [
+                      // Container(
+                      //   height: 100,
+                      //   width: 200,
+                      //   color: Colors.red,
+                      //    child: Column(
+                      //      children: [
+                      //        Image(
+                      //          fit: BoxFit.fitWidth,
+                      //          height: 80,
+                      //          image: NetworkImage(
+                      //    userMap["profilePic"].toString(),
+                      //        ),
+                      //        ),
+                      //        Text(userMap["name"]),
+                      //      ],
+                      //    )
+                      // ),
+                      BeautifulCard(imageUrl: userMap["profilePic"], userName: userMap["name"]),
 
 
-                      ],
-                    );
-                  });
-            } else {
-              return const Text("No data");
-            }
+                    ],
+                  );
+                });
           } else {
-            return const Center(child: CircularProgressIndicator());
+            return const Text("No data");
           }
-        },
-      ),
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }

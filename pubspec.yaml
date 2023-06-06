@@ -49,6 +49,8 @@ dependencies:
 
   pay: ^1.1.1
   dropdown_button2: ^2.1.3
+  image_card: ^0.0.4
+  flutter_card_swiper: ^5.1.0
 
 dev_dependencies:
   flutter_test:
