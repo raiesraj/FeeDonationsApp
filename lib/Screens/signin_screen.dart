@@ -52,9 +52,10 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
               const TextFiledTitle(title: "EmailId"),
-              CustomTextFiled(controller: emailController,hintText: "EmailId",),
+              CustomTextFiled(controller: emailController,hintText: "EmailId",keyboardType: TextInputType.emailAddress,),
               const TextFiledTitle(title: "Password"),
               CustomTextFiled(
+                keyboardType: TextInputType.none,
                 hintText: "Password",
                 controller: passwordController,
               ),

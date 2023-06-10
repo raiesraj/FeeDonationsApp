@@ -8,7 +8,6 @@ import '../Components/custom_Text.dart';
 import '../Components/custom_texflied.dart';
 import '../Provider/homescreen_provider.dart';
 
-
 class PostRequestScreen extends StatefulWidget {
   const PostRequestScreen({Key? key}) : super(key: key);
 
@@ -18,9 +17,7 @@ class PostRequestScreen extends StatefulWidget {
 
 class _PostRequestScreenState extends State<PostRequestScreen> {
   TextEditingController nameController = TextEditingController();
-
-
-
+  TextEditingController feeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,29 +37,31 @@ class _PostRequestScreenState extends State<PostRequestScreen> {
             onPressed: () {
               homeScreenProvider.selectImage(context);
             },
-            child:
-
-
-
-            CircleAvatar(
+            child: CircleAvatar(
                 radius: 50,
                 backgroundImage: (homeScreenProvider.profilePic != null)
                     ? FileImage(homeScreenProvider.profilePic!)
                     : null),
           ),
-
-
-           homeScreenProvider.myDropDown(),
-
-
+          homeScreenProvider.myDropDown(),
           20.ph,
-          CustomTextFiled(controller: nameController, hintText: "Name"),
+          CustomTextFiled(
+            controller: nameController,
+            hintText: "Name",
+            keyboardType: TextInputType.text,
+          ),
+          CustomTextFiled(
+            controller: feeController,
+            hintText: "Fee",
+            keyboardType: TextInputType.number,
+          ),
           ElevatedButton(
             onPressed: () {
-              //homeScreenProvider.selectImage(context);
-             homeScreenProvider.myDropDown();
-              homeScreenProvider.sendData(nameController: nameController,context: context);
-
+              homeScreenProvider.myDropDown();
+              homeScreenProvider.sendData(
+                  nameController: nameController,
+                  context: context,
+                  feeController: feeController);
             },
             child: const Text("Submit"),
           )

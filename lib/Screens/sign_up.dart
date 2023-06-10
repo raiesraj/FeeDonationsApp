@@ -61,13 +61,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 title: 'Name',
               ),
               CustomTextFiled(
+                keyboardType: TextInputType.name,
                 hintText: "Name",
                 controller: nameController,
               ),
               const TextFiledTitle(
                 title: "Email Id",
+
               ),
               CustomTextFiled(
+                keyboardType: TextInputType.emailAddress,
                 hintText: "EmailId",
                 controller: emailController,
               ),
@@ -75,6 +78,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 title: "Password",
               ),
               CustomTextFiled(
+                keyboardType: TextInputType.none,
                 hintText: 'Password',
                 controller: passwordController,
               ),

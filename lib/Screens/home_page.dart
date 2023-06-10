@@ -1,3 +1,6 @@
+
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedonations/Components/custom_Text.dart';
 import 'package:feedonations/Components/custom_texflied.dart';
@@ -10,10 +13,12 @@ import 'package:feedonations/Screens/others_screen.dart';
 import 'package:feedonations/Screens/school_screen.dart';
 import 'package:feedonations/Screens/university_screen.dart';
 import 'package:feedonations/Utilis/images.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_card/image_card.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 
@@ -28,7 +33,10 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
+
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   List<QueryDocumentSnapshot> allData = [];
   List<QueryDocumentSnapshot> searchResults = [];
   String searchTerm = '';
@@ -69,34 +77,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     });
   }
 
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  // String searchKeyword = '';
-  // List<QueryDocumentSnapshot> searchResults = [];
-  // Future<List<QueryDocumentSnapshot>> alphabetSearch(String collectionName, String searchTerm) async {
-  //   List<QueryDocumentSnapshot> results = [];
-  //
-  //   searchTerm = searchTerm.toLowerCase();
-  //
-  //   QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-  //       .collection(collectionName)
-  //       .where('name', isGreaterThanOrEqualTo: searchTerm)
-  //       .where('name', isLessThan: '${searchTerm}z')
-  //       .get();
-  //
-  //   results = snapshot.docs;
-  //
-  //   return results;
-  // }
-  //
-  // void performAlphabetSearch() async {
-  //   List<QueryDocumentSnapshot> results =
-  //   await alphabetSearch('Testing', searchKeyword);
-  //
-  //   setState(() {
-  //     searchResults = results;
-  //   });
-  // }
-  //
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +123,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     text: "School",
                     onTap: () {
                       RoutingPage().gotoNextPage(
-                          context: context, gotoNextPage: SchoolScreen());
+                          context: context, gotoNextPage: const SchoolScreen());
                     },
                   ),
                 ),
@@ -152,7 +132,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   text: "College",
                   onTap: () {
                     RoutingPage().gotoNextPage(
-                        context: context, gotoNextPage: CollegeScreen());
+                        context: context, gotoNextPage: const CollegeScreen());
                   },
                 ),
                 EduButton(
@@ -160,7 +140,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   text: "University",
                   onTap: () {
                     RoutingPage().gotoNextPage(
-                        context: context, gotoNextPage: UniversityScreen());
+                        context: context, gotoNextPage: const UniversityScreen());
                   },
                 ),
                 EduButton(
@@ -168,7 +148,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   text: "Others",
                   onTap: () {
                     RoutingPage().gotoNextPage(
-                        context: context, gotoNextPage: OthersScreen());
+                        context: context, gotoNextPage: const OthersScreen());
                   },
                 ),
               ],
@@ -197,7 +177,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                             // Display the desired fields from the document
                             return BeautifulCard(
                                 imageUrl: docSnapshot.get("profilePic"),
-                                userName: docSnapshot.get("name"));
+                                userName: docSnapshot.get("name"), fee: '',);
                           },
                         )
                   : searchResults.isEmpty
@@ -208,7 +188,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                             var docSnapshot = searchResults[index];
                             return BeautifulCard(
                                 imageUrl: docSnapshot.get("profilePic"),
-                                userName: docSnapshot.get("name"));
+                                userName: docSnapshot.get("name"), fee: '',);
                           },
                         ),
               // Expanded(
@@ -409,9 +389,9 @@ class EduButton extends StatelessWidget {
 }
 
 class SearchBar extends StatefulWidget {
-  SearchBar({
+  const SearchBar({
     super.key,
-    requireds,
+    required,
     required this.onChanged, required this.onTap,
   });
 
@@ -476,61 +456,116 @@ class _SearchBarState extends State<SearchBar> {
   }
 }
 
-// class RoundedElevatedButton extends StatelessWidget {
-//   final double borderRadius;
-//   final VoidCallback onPressed;
-//   final Widget child;
-//
-//   RoundedElevatedButton({
-//     required this.borderRadius,
-//     required this.onPressed,
-//     required this.child,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return ClipRRect(
-//       borderRadius: BorderRadius.circular(borderRadius),
-//       child: ElevatedButton(
-//         style: ElevatedButton.styleFrom(
-//           minimumSize: (Size.fromWidth(2)),
-//         ),
-//         onPressed: onPressed,
-//         child: child,
-//       ),
-//     );
-//   }
-// }
 
-class TopAppBar extends StatelessWidget {
+
+class TopAppBar extends StatefulWidget {
   const TopAppBar({
     super.key,
   });
 
   @override
+  State<TopAppBar> createState() => _TopAppBarState();
+}
+
+class _TopAppBarState extends State<TopAppBar> {
+
+
+String? profilePicture;
+
+@override
+  void initState() {
+  fetchProfilePicture();
+    super.initState();
+  }
+
+Future<void> fetchProfilePicture() async{
+  final fireStore = FirebaseFirestore.instance;
+  final collection = fireStore.collection("ProfilePictures");
+  final querySnapshot = await collection.get();
+
+  if(querySnapshot.docs.isNotEmpty){
+    final profilePictureDoc = querySnapshot.docs.last;
+    final data = profilePictureDoc.data();
+    setState(() {
+      profilePicture = data["profilePic"];
+    });
+  }
+
+}
+void _showBottomModalSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                // Perform action for first button
+                Navigator.pop(context); // Close the modal sheet
+              },
+              child: Text('Gallery'),
+            ),
+            SizedBox(height: 8.0),
+            ElevatedButton(
+              onPressed: () {
+                // Perform action for second button
+                Navigator.pop(context); // Close the modal sheet
+              },
+              child: Text('Upadate dp'),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+  @override
   Widget build(BuildContext context) {
+    HomeScreenProvider homeScreenProvider = Provider.of(context);
+
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
+      child: Column(
         children: [
-          CupertinoButton(
-            child: CircleAvatar(
-              radius: 30,
-              backgroundImage: AssetImage(AppImages().profileImg),
-            ),
-            onPressed: () {},
+
+          Row(
+            children: [
+              CupertinoButton(
+                onPressed: () {
+
+                  homeScreenProvider.selectImage(context);
+                },
+                child: profilePicture != null ?CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    profilePicture!.toString()
+
+                  ),
+                radius: 40,
+                ) :
+                    const Text("No Image")
+              ),
+              TextButton(onPressed: (){
+                homeScreenProvider.sendProfile();
+              }, child: Text("sub"),),
+              const Spacer(),
+              Image.asset(
+                AppImages().walletIcon,
+                height: 24,
+                width: 24,
+              ),
+              10.pw,
+              const CustomText(
+                  text: "\$365.04", fontWeight: FontWeight.w600, textSize: 22)
+            ],
           ),
-          const Spacer(),
-          Image.asset(
-            AppImages().walletIcon,
-            height: 24,
-            width: 24,
-          ),
-          10.pw,
-          const CustomText(
-              text: "\$365.04", fontWeight: FontWeight.w600, textSize: 22)
         ],
       ),
     );
   }
+
 }

@@ -7,6 +7,7 @@ import 'package:feedonations/Provider/signup_provider.dart';
 import 'package:feedonations/Screens/Donations.dart';
 import 'package:feedonations/Screens/googlePay.dart';
 import 'package:feedonations/Screens/home_page.dart';
+import 'package:feedonations/Screens/profile_picture.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,13 +38,14 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (context) => SignInProviderAuth()),
         ChangeNotifierProvider(create: (context) => HomeScreenProvider()),
+        //ChangeNotifierProvider(create: (context) => ProfilePictureProvider()),
       ],
       child: MaterialApp(
         title: 'Fee Donations',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home:  BottomNavigationExample(),
+        home:  HomePageScreen(),
       ),
     );
   }

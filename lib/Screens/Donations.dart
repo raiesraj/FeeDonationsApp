@@ -54,6 +54,7 @@ class _DonationsScreenState extends State<DonationsScreen> {
 
                               //
                               BeautifulCard(
+                                fee: userMap["fee"],
                                 imageUrl: userMap["profilePic"],
                                 userName: userMap["name"],
                               ),
@@ -77,8 +78,9 @@ class _DonationsScreenState extends State<DonationsScreen> {
 class BeautifulCard extends StatelessWidget {
   final String imageUrl;
   final String userName;
+  final String fee;
 
-  BeautifulCard({required this.imageUrl, required this.userName});
+  BeautifulCard({required this.imageUrl, required this.userName, required this.fee});
 
   void _showImagePreview(BuildContext context) {
     showDialog(
@@ -86,7 +88,6 @@ class BeautifulCard extends StatelessWidget {
       builder: (BuildContext context) {
         return Dialog(
           shadowColor: Colors.black,
-
           child: Image.network(imageUrl),
         );
       },
@@ -123,15 +124,20 @@ class BeautifulCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      userName,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          userName,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(fee),
+                      ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    const Text(
                       'Donate for kids to their well being',
                       style: TextStyle(fontSize: 16),
                     ),

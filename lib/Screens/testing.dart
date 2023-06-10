@@ -225,7 +225,7 @@ class DataFromFirebase extends StatelessWidget {
                       //      ],
                       //    )
                       // ),
-                      BeautifulCard(imageUrl: userMap["profilePic"], userName: userMap["name"]),
+                      BeautifulCard(imageUrl: userMap["profilePic"], userName: userMap["name"], fee: userMap['fee'],),
 
 
                     ],
