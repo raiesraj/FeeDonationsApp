@@ -8,6 +8,7 @@ import 'package:feedonations/Screens/Donations.dart';
 import 'package:feedonations/Screens/googlePay.dart';
 import 'package:feedonations/Screens/home_page.dart';
 import 'package:feedonations/Screens/profile_picture.dart';
+import 'package:feedonations/Screens/sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,6 +19,7 @@ import 'package:uuid/uuid.dart';
 
 import 'Constant/bottom_navigation.dart';
 import 'Provider/homescreen_provider.dart';
+import 'Screens/profle.dart';
 import 'Screens/testing.dart';
 
 void main() async {
@@ -45,7 +47,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home:  HomePageScreen(),
+        home: ProfilePage(),
       ),
     );
   }

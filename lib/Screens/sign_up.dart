@@ -78,7 +78,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 title: "Password",
               ),
               CustomTextFiled(
-                keyboardType: TextInputType.none,
+                keyboardType: TextInputType.phone,
                 hintText: 'Password',
                 controller: passwordController,
               ),

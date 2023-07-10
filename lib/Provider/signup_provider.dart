@@ -33,18 +33,13 @@ class SignUpAuthProvider with ChangeNotifier {
         userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: email.text, password: password.text);
-        FirebaseFirestore.instance
-            .collection("students")
-            .doc(userCredential!.user!.uid)
-            .set({
-          "name": name.text,
-          "email": email.text,
-          "password": password.text,
-          "userUid": userCredential!.user!.uid,
-        }).then((value) => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const HomePageScreen())));
+
+        final String uid = userCredential!.user?.uid ??'';
+         CollectionReference _userCollection = FirebaseFirestore.instance.collection('users');
+         await _userCollection .doc(uid).set({
+           'uid': uid,
+         });
+
         loading = false;
         notifyListeners();
       } on FirebaseException catch (e) {

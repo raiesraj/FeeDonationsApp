@@ -55,7 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
               CustomTextFiled(controller: emailController,hintText: "EmailId",keyboardType: TextInputType.emailAddress,),
               const TextFiledTitle(title: "Password"),
               CustomTextFiled(
-                keyboardType: TextInputType.none,
+                keyboardType: TextInputType.phone,
                 hintText: "Password",
                 controller: passwordController,
               ),

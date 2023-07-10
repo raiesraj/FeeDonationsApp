@@ -9,7 +9,7 @@ class CollegeScreen extends StatelessWidget {
     return  Scaffold(
       body: Column(
         children: const [
-          DataFromFirebase(data: "College")
+          Expanded(child: DataFromFirebase(data: "College"))
         ],
       ),
 

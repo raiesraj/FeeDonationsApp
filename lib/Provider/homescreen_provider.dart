@@ -5,6 +5,11 @@ import 'package:feedonations/Constant/snackbar.dart';
 import 'package:feedonations/Utilis/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -91,17 +96,19 @@ class HomeScreenProvider with ChangeNotifier {
       final doc = await collection.add({
         "profilePic": downloadUrl,
       });
-     final profilePictureId = doc.id;
-
-
 
     }else{
       print("something went to wrong");
     }
 
-
-
   }
+
+
+
+
+
+
+
   void sendData(
       {required TextEditingController nameController,
       context,

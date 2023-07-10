@@ -14,6 +14,7 @@ import 'package:feedonations/Screens/school_screen.dart';
 import 'package:feedonations/Screens/university_screen.dart';
 import 'package:feedonations/Utilis/images.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,6 +22,7 @@ import 'package:image_card/image_card.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
+import 'package:uuid/uuid.dart';
 
 import '../Utilis/app_colors.dart';
 import 'college_screen.dart';
@@ -76,8 +78,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
       searchResults = results;
     });
   }
-
-
   @override
   Widget build(BuildContext context) {
     HomeScreenProvider homeScreenProvider =
@@ -87,7 +87,24 @@ class _HomePageScreenState extends State<HomePageScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const TopAppBar(),
+           Padding(
+             padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+             child: Row(
+               children: [
+                 10.ph,
+                 ProfilePictureUploader(),
+                 Spacer(),
+                 Image.asset(
+                   AppImages().walletIcon,
+                   height: 24,
+                   width: 24,
+                 ),
+                 10.pw,
+                 const CustomText(
+                     text: "\$365.04", fontWeight: FontWeight.w600, textSize: 22)
+               ],
+             ),
+           ),
             10.ph,
             SearchBar(
               onTap: (){
@@ -458,114 +475,102 @@ class _SearchBarState extends State<SearchBar> {
 
 
 
-class TopAppBar extends StatefulWidget {
-  const TopAppBar({
-    super.key,
-  });
-
+class ProfilePictureUploader extends StatefulWidget {
   @override
-  State<TopAppBar> createState() => _TopAppBarState();
+  _ProfilePictureUploaderState createState() => _ProfilePictureUploaderState();
 }
 
-class _TopAppBarState extends State<TopAppBar> {
+class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
+  final picker = ImagePicker();
+  File? _imageFile;
+  bool _uploading = false;
 
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data!.exists) {
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            final profilePictureUrl = data['profilePicture'] as String?;
+            return GestureDetector(
+              onTap: _selectImage,
+              child: CircleAvatar(
+                radius: 35,
+                backgroundColor: Colors.grey[300],
+                backgroundImage: _imageFile != null
+                    ? FileImage(_imageFile!)
+                    : (profilePictureUrl != null
+                    ? NetworkImage(profilePictureUrl)
+                    : null) as ImageProvider,
+                child: _uploading
+                    ? CircularProgressIndicator(
+                )
+                    : (profilePictureUrl == null && _imageFile == null
+                    ? Icon(
+                  Icons.person,
+                  size: 80,
+                  color: Colors.yellow,
+                )
+                    : null),
+              ),
+            );
+          } else {
+            return Container();
+          }
+        },
+    );}
 
-String? profilePicture;
-
-@override
-  void initState() {
-  fetchProfilePicture();
-    super.initState();
+  Future<void> _selectImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      await _uploadImage();
+    }
   }
 
-Future<void> fetchProfilePicture() async{
-  final fireStore = FirebaseFirestore.instance;
-  final collection = fireStore.collection("ProfilePictures");
-  final querySnapshot = await collection.get();
-
-  if(querySnapshot.docs.isNotEmpty){
-    final profilePictureDoc = querySnapshot.docs.last;
-    final data = profilePictureDoc.data();
+  Future<void> _uploadImage() async {
     setState(() {
-      profilePicture = data["profilePic"];
+      _uploading = true;
+    });
+
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid;
+
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final firebaseStorageRef =
+    FirebaseStorage.instance.ref().child('profile_pictures/$userId/$fileName');
+
+    final uploadTask = firebaseStorageRef.putFile(_imageFile!);
+
+    uploadTask.snapshotEvents.listen((event) {
+      // You can update a progress indicator or handle completion here
+      // For example, show a circular progress indicator while uploading
+    });
+
+    final snapshot = await uploadTask.whenComplete(() {});
+
+    if (snapshot.state == TaskState.success) {
+      final downloadURL = await snapshot.ref.getDownloadURL();
+      await _updateProfilePicture(userId, downloadURL);
+    } else {
+      // Handle upload failure
+    }
+
+    setState(() {
+      _uploading = false;
     });
   }
 
-}
-void _showBottomModalSheet(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return Container(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                // Perform action for first button
-                Navigator.pop(context); // Close the modal sheet
-              },
-              child: Text('Gallery'),
-            ),
-            SizedBox(height: 8.0),
-            ElevatedButton(
-              onPressed: () {
-                // Perform action for second button
-                Navigator.pop(context); // Close the modal sheet
-              },
-              child: Text('Upadate dp'),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-  @override
-  Widget build(BuildContext context) {
-    HomeScreenProvider homeScreenProvider = Provider.of(context);
-
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Column(
-        children: [
-
-          Row(
-            children: [
-              CupertinoButton(
-                onPressed: () {
-
-                  homeScreenProvider.selectImage(context);
-                },
-                child: profilePicture != null ?CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    profilePicture!.toString()
-
-                  ),
-                radius: 40,
-                ) :
-                    const Text("No Image")
-              ),
-              TextButton(onPressed: (){
-                homeScreenProvider.sendProfile();
-              }, child: Text("sub"),),
-              const Spacer(),
-              Image.asset(
-                AppImages().walletIcon,
-                height: 24,
-                width: 24,
-              ),
-              10.pw,
-              const CustomText(
-                  text: "\$365.04", fontWeight: FontWeight.w600, textSize: 22)
-            ],
-          ),
-        ],
-      ),
-    );
+  Future<void> _updateProfilePicture(String? userId, String pictureURL) async {
+    if (userId != null) {
+      final usersCollectionRef = FirebaseFirestore.instance.collection('users');
+      await usersCollectionRef.doc(userId).update({'profilePicture': pictureURL});
+    }
   }
-
 }
