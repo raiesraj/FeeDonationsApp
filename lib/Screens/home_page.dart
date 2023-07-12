@@ -1,9 +1,7 @@
-
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedonations/Components/custom_Text.dart';
-import 'package:feedonations/Components/custom_texflied.dart';
 import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Constant/snackbar.dart';
 import 'package:feedonations/Provider/homescreen_provider.dart';
@@ -15,17 +13,17 @@ import 'package:feedonations/Screens/sign_up.dart';
 import 'package:feedonations/Screens/university_screen.dart';
 import 'package:feedonations/Utilis/images.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart'as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_card/image_card.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:lottie/lottie.dart';
-import 'package:uuid/uuid.dart';
-
+import '../Components/eduBtn.dart';
+import '../Components/recent_text.dart';
+import '../Components/searchbar.dart';
 import '../Utilis/app_colors.dart';
 import 'college_screen.dart';
 
@@ -37,8 +35,6 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
-
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<QueryDocumentSnapshot> allData = [];
@@ -53,7 +49,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   Future<void> fetchAllData() async {
     QuerySnapshot<Map<String, dynamic>> snapshot =
-        await _firestore.collection('Testing').get();
+        await _firestore.collection('University').get();
 
     setState(() {
       allData = snapshot.docs;
@@ -80,6 +76,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       searchResults = results;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     HomeScreenProvider homeScreenProvider =
@@ -89,33 +86,35 @@ class _HomePageScreenState extends State<HomePageScreen> {
       body: SafeArea(
         child: Column(
           children: [
-           Padding(
-             padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-             child: Row(
-               children: [
-                 10.ph,
-                 ProfilePage(),
-                 Spacer(),
-                 Image.asset(
-                   AppImages().walletIcon,
-                   height: 24,
-                   width: 24,
-                 ),
-                 10.pw,
-                 const CustomText(
-                     text: "\$365.04", fontWeight: FontWeight.w600, textSize: 22)
-               ],
-             ),
-           ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Row(
+                children: [
+                  10.ph,
+                  const TopAppBar(),
+                  const Spacer(),
+                  Image.asset(
+                    AppImages().walletIcon,
+                    height: 24,
+                    width: 24,
+                  ),
+                  10.pw,
+                  const CustomText(
+                      text: "\$365.04",
+                      fontWeight: FontWeight.w600,
+                      textSize: 22)
+                ],
+              ),
+            ),
             10.ph,
             SearchBar(
-              onTap: (){
+              onTap: () {
                 setState(() {
-                if(searchTerm.isNotEmpty){
-                  performAlphabetSearch(searchTerm);
-                }else{
-                  AppSnackBar.snackBar(context, "Type something to Search");
-                }
+                  if (searchTerm.isNotEmpty) {
+                    performAlphabetSearch(searchTerm);
+                  } else {
+                    AppSnackBar.snackBar(context, "Type something to Search");
+                  }
                 });
               },
               onChanged: (val) {
@@ -159,7 +158,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   text: "University",
                   onTap: () {
                     RoutingPage().gotoNextPage(
-                        context: context, gotoNextPage: const UniversityScreen());
+                        context: context,
+                        gotoNextPage: const UniversityScreen());
                   },
                 ),
                 EduButton(
@@ -173,187 +173,15 @@ class _HomePageScreenState extends State<HomePageScreen> {
               ],
             ),
             25.ph,
-            Row(
-              children: [
-                25.pw,
-                const CustomText(
-                  text: "Recent Request",
-                  fontWeight: FontWeight.w200,
-                  textSize: 16,
-                  color: Colors.black,
-                ),
-              ],
-            ),
+            const RecentText(),
+
+            /// Getting Recent Post From University Collections
+            /// to perform search on it
             20.ph,
-            Expanded(
-              child: searchTerm.isEmpty
-                  ? allData.isEmpty
-                      ? const Center(child: Text('Loading data...'))
-                      : ListView.builder(
-                          itemCount: allData.length,
-                          itemBuilder: (context, index) {
-                            var docSnapshot = allData[index];
-                            // Display the desired fields from the document
-                            return BeautifulCard(
-                                imageUrl: docSnapshot.get("profilePic"),
-                                userName: docSnapshot.get("name"), fee: '',);
-                          },
-                        )
-                  : searchResults.isEmpty
-                      ? const Center(child: Text('No results found.'))
-                      : ListView.builder(
-                          itemCount: searchResults.length,
-                          itemBuilder: (context, index) {
-                            var docSnapshot = searchResults[index];
-                            return BeautifulCard(
-                                imageUrl: docSnapshot.get("profilePic"),
-                                userName: docSnapshot.get("name"), fee: '',);
-                          },
-                        ),
-              // Expanded(
-              //   child: StreamBuilder<QuerySnapshot>(
-              //     stream: FirebaseFirestore.instance
-              //         .collection("Testing")
-              //         .orderBy("timestamp", descending: true)
-              //         .limit(4)
-              //         .snapshots(),
-              //     builder: (context, AsyncSnapshot snapshot) {
-              //       if (snapshot.connectionState == ConnectionState.active) {
-              //         if (snapshot.hasData && snapshot.data != null) {
-              //           return ListView.builder(
-              //               itemCount: snapshot.data!.docs.length,
-              //               itemBuilder: (context, index) {
-              //                 ///Getting Data bY calling userMap
-              //                 Map<String, dynamic> userMap =
-              //                     snapshot.data!.docs[index].data()
-              //                         as Map<String, dynamic>;
-              //                 return Column(
-              //                   children: [
-              //                     // Container(
-              //                     //   height: 100,
-              //                     //   width: 200,
-              //                     //   color: Colors.red,
-              //                     //    child: Column(
-              //                     //      children: [
-              //                     //        Image(
-              //                     //          fit: BoxFit.fitWidth,
-              //                     //          height: 80,
-              //                     //          image: NetworkImage(
-              //                     //    userMap["profilePic"].toString(),
-              //                     //        ),
-              //                     //        ),
-              //                     //        Text(userMap["name"]),
-              //                     //      ],
-              //                     //    )
-              //                     // ),
-              //                     //
-              //                     BeautifulCard(
-              //                         imageUrl: userMap['profilePic'],
-              //                         userName: userMap['name']),
-              //                   ],
-              //                 );
-              //               });
-              //         } else {
-              //           return const Text("No data");
-              //         }
-              //       } else {
-              //         return const Center(child: CircularProgressIndicator());
-              //       }
-              //     },
-              //   ),
-              // ),
-
-              //   Expanded(
-              //     child: ListView.builder(
-              //      padding: const EdgeInsets.only(bottom: 40),
-              //       scrollDirection: Axis.horizontal,
-              //       itemCount: 4,
-              //         itemBuilder: (context,int index){
-              //       return  Card(
-              //         margin: const EdgeInsets.symmetric(horizontal: 10,),
-              //         shape: RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(20),
-              //         ),
-              //         child: Column(
-              //           children: [
-              //             ClipRRect(
-              //               borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              //               child: Image.asset(
-              //                 "assets/Images/donations.png",
-              //                 // height: 180,
-              //                 height: 140,
-              // fit: BoxFit.fitWidth,
-              //               ),
-              //             ),
-              //             Row(
-              //              //crossAxisAlignment: CrossAxisAlignment.start,
-              //                //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //               children: [
-              //                 50.ph,
-              //                 const Text(
-              //                   "Donate for kids to their well being",
-              //                   style: TextStyle(
-              //                    fontSize: 18,
-              //                    fontWeight: FontWeight.bold,
-              //                  ),
-              //                ),
-              //                //const SizedBox(height: 8),
-              //              ],
-              //            ),
-              //            Row(
-              //              crossAxisAlignment: CrossAxisAlignment.start,
-              //              children: [
-              //                Text(
-              //                  'FEE\ 200PKR',
-              //                  style: GoogleFonts.poppins(
-              //                    fontWeight: FontWeight.w600,
-              //                    fontSize: 15,
-              //                  ),
-              //                ),
-              //                10.pw,
-              //                Text(
-              //                  'KIU',
-              //                  style: GoogleFonts.poppins(
-              //                    fontWeight: FontWeight.w600,
-              //                    fontSize: 15,
-              //                  ),
-              //                ),
-              //              ],
-              //            ),
-              //            CupertinoButton(
-              //              padding: EdgeInsets.zero,
-              //              onPressed: () {},
-              //              child: Container(
-              //                decoration: BoxDecoration(
-              //                    color: AppColor.kButtonColor,
-              //                    borderRadius: BorderRadius.circular(10)),
-              //                height: 36,
-              //                width: 70,
-              //                child: Center(
-              //                  child: CustomText(
-              //                    text: "Donate",
-              //                    fontWeight: FontWeight.w600,
-              //                    textSize: 14,
-              //                    color: AppColor.kSearchBtnTextColor,
-              //                  ),
-              //                ),
-              //              ),
-              //            ),
-              //  //           Lottie.network(
-              //  //             'https://assets10.lottiefiles.com/packages/lf20_ocBLovFChM.json', // Replace with your Lottie animation file path
-              //  //             width: 500,
-              //  //             height: 300,
-              //  //             fit: BoxFit.contain,
-              //  //
-              //  //           )
-              //
-              //
-              // ],
-              //         ),
-              //       );
-              //     }),
-              //   )
-            )
+            RecentRequestSearchFireBaseData(
+                searchTerm: searchTerm,
+                allData: allData,
+                searchResults: searchResults),
           ],
         ),
       ),
@@ -361,129 +189,61 @@ class _HomePageScreenState extends State<HomePageScreen> {
   }
 }
 
-class EduButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onTap;
-  final String image;
-
-  const EduButton({
+class RecentRequestSearchFireBaseData extends StatelessWidget {
+  const RecentRequestSearchFireBaseData({
     super.key,
-    required this.text,
-    required this.onTap,
-    required this.image,
+    required this.searchTerm,
+    required this.allData,
+    required this.searchResults,
   });
+
+  final String searchTerm;
+  final List<QueryDocumentSnapshot<Object?>> allData;
+  final List<QueryDocumentSnapshot<Object?>> searchResults;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: onTap,
-          child: Container(
-            height: 68,
-            width: 68,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20), color: Colors.white),
-            child: Center(
-              child: Image.asset(
-                image,
-                height: 50,
-              ),
-            ),
-          ),
-        ),
-        15.ph,
-        Text(
-          text,
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: AppColor.kHintTextColor,
-          ),
-        ),
-      ],
+    return Expanded(
+      child: searchTerm.isEmpty
+          ? allData.isEmpty
+              ? const Center(child: Text('Loading data...'))
+              : ListView.builder(
+                  itemCount: allData.length,
+                  itemBuilder: (context, index) {
+                    var docSnapshot = allData[index];
+                    // Display the desired fields from the document
+                    return BeautifulCard(
+                      imageUrl: docSnapshot.get("profilePic"),
+                      userName: docSnapshot.get("name"),
+                      fee: docSnapshot.get("fee"),
+                    );
+                  },
+                )
+          : searchResults.isEmpty
+              ? const Center(child: Text('No results found.'))
+              : ListView.builder(
+                  itemCount: searchResults.length,
+                  itemBuilder: (context, index) {
+                    var docSnapshot = searchResults[index];
+                    return BeautifulCard(
+                      imageUrl: docSnapshot.get("profilePic"),
+                      userName: docSnapshot.get("name"),
+                      fee: '',
+                    );
+                  },
+                ),
     );
   }
 }
 
-class SearchBar extends StatefulWidget {
-  const SearchBar({
-    super.key,
-    required,
-    required this.onChanged, required this.onTap,
-  });
-
-  final ValueChanged<String> onChanged;
-  final VoidCallback onTap;
-  @override
-  State<SearchBar> createState() => _SearchBarState();
-}
-
-class _SearchBarState extends State<SearchBar> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColor.kSearchBgColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        height: 56,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                onChanged: widget.onChanged,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: "Type Something",
-                  hintStyle: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14,
-                    color: AppColor.kHintTextColor,
-                  ),
-                ),
-              ),
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: widget.onTap,
-              child: Container(
-                decoration: BoxDecoration(
-                    color: AppColor.kButtonColor,
-                    borderRadius: BorderRadius.circular(10)),
-                height: 36,
-                width: 90,
-                child: Center(
-                  child: CustomText(
-                    text: "Search",
-                    fontWeight: FontWeight.w700,
-                    textSize: 16,
-                    color: AppColor.kSearchBtnTextColor,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class TopAppBar extends StatefulWidget {
+  const TopAppBar({super.key});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _TopAppBarState createState() => _TopAppBarState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _TopAppBarState extends State<TopAppBar> {
   final picker = ImagePicker();
   File? _imageFile;
   bool _uploading = false;
@@ -494,44 +254,49 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     {
       return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(currentUser?.uid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data!.exists) {
-              final data = snapshot.data!.data()!;
-              final profilePictureUrl = data['profilePicture'] as String?;
-              return GestureDetector(
-                onTap: (){
-                  _showOptionsDialog();
-                },
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: _imageFile != null
-                      ? FileImage(_imageFile!)
-                      : (profilePictureUrl != null
-                      ? NetworkImage(profilePictureUrl)
-                  as ImageProvider<Object>
-                      : AssetImage(AppImages().avatarImg)),
-                  child: _uploading
-                      ? LoadingAnimationWidget.fallingDot(color: Colors.redAccent, size: 40)
-                      : (profilePictureUrl == null && _imageFile == null
-                      ? Container()
-                      : null),
-                ),
-              );
-            } else {
-              return Center(child: InkWell(
-                  onTap: (){
-                    RoutingPage().gotoNextPage(context: context, gotoNextPage: const SignUpScreen());
-                  },
-                  child: Image.asset(AppImages().signupImg,width: 200,)));
-            }
-          },
-        );
-
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser?.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data!.exists) {
+            final data = snapshot.data!.data()!;
+            final profilePictureUrl = data['profilePicture'] as String?;
+            return GestureDetector(
+              onTap: () {
+                _showOptionsDialog();
+              },
+              child: CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.grey[300],
+                backgroundImage: _imageFile != null
+                    ? FileImage(_imageFile!)
+                    : (profilePictureUrl != null
+                        ? NetworkImage(profilePictureUrl)
+                            as ImageProvider<Object>
+                        : AssetImage(AppImages().avatarImg)),
+                child: _uploading
+                    ? LoadingAnimationWidget.fallingDot(
+                        color: Colors.redAccent, size: 40)
+                    : (profilePictureUrl == null && _imageFile == null
+                        ? Container()
+                        : null),
+              ),
+            );
+          } else {
+            return Center(
+                child: InkWell(
+                    onTap: () {
+                      RoutingPage().gotoNextPage(
+                          context: context, gotoNextPage: const SignUpScreen());
+                    },
+                    child: Image.asset(
+                      AppImages().signupImg,
+                      width: 200,
+                    )));
+          }
+        },
+      );
     }
   }
 
@@ -560,9 +325,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final uploadTask = firebaseStorageRef.putFile(_imageFile!);
 
-    uploadTask.snapshotEvents.listen((event) {
-
-    });
+    uploadTask.snapshotEvents.listen((event) {});
 
     final snapshot = await uploadTask.whenComplete(() {});
 
@@ -613,4 +376,5 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       },
     );
-  }}
+  }
+}

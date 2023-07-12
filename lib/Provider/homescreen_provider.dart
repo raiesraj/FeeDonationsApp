@@ -74,6 +74,13 @@ class HomeScreenProvider with ChangeNotifier {
     }
   }
 
+
+
+
+
+
+
+
   void sendData(
       {required TextEditingController nameController,
       context,
