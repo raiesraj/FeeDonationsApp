@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feedonations/Constant/bottom_navigation.dart';
 import 'package:feedonations/Constant/snackbar.dart';
 import 'package:feedonations/Utilis/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,22 +20,10 @@ import '../Components/dropdown.dart';
 import '../Routes/routes.dart';
 import '../Screens/Donations.dart';
 import '../Screens/university_screen.dart';
-
-
-
-
-
+import '../main.dart';
 
 class HomeScreenProvider with ChangeNotifier {
-
-
-
-
-
-
-
-
-
+  bool isLoading = false;
 
   List<String> items = [
     "University",
@@ -49,7 +38,7 @@ class HomeScreenProvider with ChangeNotifier {
 
   Widget myDropDown() {
     return CustomDropdownButton2(
-        offset: Offset(220, 20),
+        offset: const Offset(220, 20),
         buttonHeight: 50,
         buttonDecoration: BoxDecoration(
           border: const Border.fromBorderSide(
@@ -85,36 +74,14 @@ class HomeScreenProvider with ChangeNotifier {
     }
   }
 
-  void sendProfile() async{
-    if(profilePic != null){
-      UploadTask uploadTask = FirebaseStorage.instance.ref().
-    child("ProfilePictures").child(const Uuid().v1()).putFile(profilePic!);
-      TaskSnapshot taskSnapshot = await uploadTask;
-      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-      final fireStore = FirebaseFirestore.instance;
-      final collection = fireStore.collection("ProfilePictures");
-      final doc = await collection.add({
-        "profilePic": downloadUrl,
-      });
-
-    }else{
-      print("something went to wrong");
-    }
-
-  }
-
-
-
-
-
-
-
   void sendData(
       {required TextEditingController nameController,
       context,
       required TextEditingController feeController}) async {
     Timestamp timestamp = Timestamp.now();
-
+    isLoading = true;
+    showBottomNavigationBar = false;
+    notifyListeners();
     if (selectedValue != null &&
         nameController.text.isNotEmpty &&
         profilePic != null) {
@@ -137,8 +104,34 @@ class HomeScreenProvider with ChangeNotifier {
       _firestore.collection(selectedValue.toString()).add(
             newUserData,
           );
+
+      isLoading = true;
+      _profilePic = null;
+      selectedValue = null;
+      feeController.clear();
+      nameController.clear();
+      showBottomNavigationBar = true;
+      notifyListeners();
+      AppSnackBar.snackBar(context, "Post Successful Done");
+      isLoading = false;
+      showBottomNavigationBar = true;
+      notifyListeners();
+      RoutingPage().gotoNextPage(
+          context: context, gotoNextPage: BottomNavigationExample());
     } else {
-      AppSnackBar.snackBar(context, "Fill all the flied to Submit Form");
+      AppSnackBar.snackBar(context, "Check All the Details ");
+      isLoading = false;
+      showBottomNavigationBar = true;
+      notifyListeners();
     }
+  }
+
+  bool _showBottomNavigationBar = true;
+
+  bool get showBottomNavigationBar => _showBottomNavigationBar;
+
+  set showBottomNavigationBar(bool value) {
+    _showBottomNavigationBar = value;
+    notifyListeners();
   }
 }

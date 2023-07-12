@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../Constant/bottom_navigation.dart';
+
 class SignInProviderAuth with ChangeNotifier {
   UserCredential? userCredential;
   bool loading = false;
@@ -15,6 +17,7 @@ class SignInProviderAuth with ChangeNotifier {
   void signInValidation(
       {required TextEditingController email,
       required TextEditingController password,
+         String? uid,
       required BuildContext context}) async {
     loading = true;
     notifyListeners();
@@ -28,18 +31,21 @@ class SignInProviderAuth with ChangeNotifier {
         notifyListeners();
         userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: email.text, password: password.text);
-        final User? user = FirebaseAuth.instance.currentUser;
-        String uid = '';
-        if(user != null){
-          uid = user.uid;
+         FirebaseAuth.instance.currentUser;
           final userCollection = FirebaseFirestore.instance.collection('users');
-          await userCollection.doc(uid).set({uid : uid,});
-        }
+          QuerySnapshot querySnapshot = await userCollection.where('uid', isEqualTo: uid).get();
+           if(querySnapshot.docs.isEmpty){
+           }else if(querySnapshot.docs.isNotEmpty){
+             AppSnackBar.snackBar(context, "Welcome");
+           }
+
+
+
 
         loading = false;
         notifyListeners();
         RoutingPage()
-            .gotoNextPage(context: context, gotoNextPage: ProfilePage());
+            .gotoNextPage(context: context, gotoNextPage: BottomNavigationExample());
       } on FirebaseException catch (e) {
         if (e.message != null) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(

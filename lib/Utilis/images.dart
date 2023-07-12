@@ -11,4 +11,7 @@ class AppImages{
   String schoolBag = ("assets/Images/schoolbag.png");
   String othersImg = ("assets/Images/others.png");
   String signupImg = ("assets/Images/signup.png");
+  String avatarImg = ("assets/Images/avator.png");
+  String galleryImg = ("assets/Images/Gallery.png");
+  String noInternetImg = ("assets/Images/No internet.png");
 }

@@ -34,8 +34,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              
-
               40.ph,
               Center(
                 child: Image.asset(AppImages().appLogo),

@@ -11,15 +11,17 @@ import 'package:feedonations/Routes/routes.dart';
 import 'package:feedonations/Screens/Donations.dart';
 import 'package:feedonations/Screens/others_screen.dart';
 import 'package:feedonations/Screens/school_screen.dart';
+import 'package:feedonations/Screens/sign_up.dart';
 import 'package:feedonations/Screens/university_screen.dart';
 import 'package:feedonations/Utilis/images.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart'as firebase_storage;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_card/image_card.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 import 'package:uuid/uuid.dart';
@@ -92,7 +94,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
              child: Row(
                children: [
                  10.ph,
-                 ProfilePictureUploader(),
+                 ProfilePage(),
                  Spacer(),
                  Image.asset(
                    AppImages().walletIcon,
@@ -474,55 +476,64 @@ class _SearchBarState extends State<SearchBar> {
 }
 
 
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
-class ProfilePictureUploader extends StatefulWidget {
   @override
-  _ProfilePictureUploaderState createState() => _ProfilePictureUploaderState();
+  _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
+class _ProfilePageState extends State<ProfilePage> {
   final picker = ImagePicker();
   File? _imageFile;
   bool _uploading = false;
 
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data!.exists) {
-            final data = snapshot.data!.data() as Map<String, dynamic>;
-            final profilePictureUrl = data['profilePicture'] as String?;
-            return GestureDetector(
-              onTap: _selectImage,
-              child: CircleAvatar(
-                radius: 35,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: _imageFile != null
-                    ? FileImage(_imageFile!)
-                    : (profilePictureUrl != null
-                    ? NetworkImage(profilePictureUrl)
-                    : null) as ImageProvider,
-                child: _uploading
-                    ? CircularProgressIndicator(
-                )
-                    : (profilePictureUrl == null && _imageFile == null
-                    ? Icon(
-                  Icons.person,
-                  size: 80,
-                  color: Colors.yellow,
-                )
-                    : null),
-              ),
-            );
-          } else {
-            return Container();
-          }
-        },
-    );}
+    {
+      return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser?.uid)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data!.exists) {
+              final data = snapshot.data!.data()!;
+              final profilePictureUrl = data['profilePicture'] as String?;
+              return GestureDetector(
+                onTap: (){
+                  _showOptionsDialog();
+                },
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.grey[300],
+                  backgroundImage: _imageFile != null
+                      ? FileImage(_imageFile!)
+                      : (profilePictureUrl != null
+                      ? NetworkImage(profilePictureUrl)
+                  as ImageProvider<Object>
+                      : AssetImage(AppImages().avatarImg)),
+                  child: _uploading
+                      ? LoadingAnimationWidget.fallingDot(color: Colors.redAccent, size: 40)
+                      : (profilePictureUrl == null && _imageFile == null
+                      ? Container()
+                      : null),
+                ),
+              );
+            } else {
+              return Center(child: InkWell(
+                  onTap: (){
+                    RoutingPage().gotoNextPage(context: context, gotoNextPage: const SignUpScreen());
+                  },
+                  child: Image.asset(AppImages().signupImg,width: 200,)));
+            }
+          },
+        );
+
+    }
+  }
 
   Future<void> _selectImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -543,23 +554,24 @@ class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
     final userId = user?.uid;
 
     final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    final firebaseStorageRef =
-    FirebaseStorage.instance.ref().child('profile_pictures/$userId/$fileName');
+    final firebaseStorageRef = firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('profile_pictures/$userId/$fileName');
 
     final uploadTask = firebaseStorageRef.putFile(_imageFile!);
 
     uploadTask.snapshotEvents.listen((event) {
-      // You can update a progress indicator or handle completion here
-      // For example, show a circular progress indicator while uploading
+
     });
 
     final snapshot = await uploadTask.whenComplete(() {});
 
-    if (snapshot.state == TaskState.success) {
+    if (snapshot.state == firebase_storage.TaskState.success) {
       final downloadURL = await snapshot.ref.getDownloadURL();
       await _updateProfilePicture(userId, downloadURL);
+      AppSnackBar.snackBar(context, "Image Update Successful");
     } else {
-      // Handle upload failure
+// Handle upload failure
     }
 
     setState(() {
@@ -570,7 +582,35 @@ class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
   Future<void> _updateProfilePicture(String? userId, String pictureURL) async {
     if (userId != null) {
       final usersCollectionRef = FirebaseFirestore.instance.collection('users');
-      await usersCollectionRef.doc(userId).update({'profilePicture': pictureURL});
+      await usersCollectionRef
+          .doc(userId)
+          .update({'profilePicture': pictureURL});
     }
   }
-}
+
+  void _showOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('Select an option'),
+          children: [
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                _selectImage();
+              },
+              child: Text('Change Image'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                Image.network(_imageFile.toString());
+              },
+              child: Text('View Image'),
+            ),
+          ],
+        );
+      },
+    );
+  }}

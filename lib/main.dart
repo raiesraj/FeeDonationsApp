@@ -1,14 +1,13 @@
+import 'dart:async';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:feedonations/Constant/sized_box.dart';
+import 'package:feedonations/Constant/snackbar.dart';
 import 'package:feedonations/Provider/signin_provider.dart';
 import 'package:feedonations/Provider/signup_provider.dart';
-import 'package:feedonations/Screens/Donations.dart';
-import 'package:feedonations/Screens/googlePay.dart';
-import 'package:feedonations/Screens/home_page.dart';
-import 'package:feedonations/Screens/profile_picture.dart';
-import 'package:feedonations/Screens/sign_up.dart';
+import 'package:feedonations/Routes/routes.dart';
+import 'package:feedonations/Screens/nointernet.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,11 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-
 import 'Constant/bottom_navigation.dart';
 import 'Provider/homescreen_provider.dart';
-import 'Screens/profle.dart';
-import 'Screens/testing.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,8 +26,17 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -40,18 +46,31 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (context) => SignInProviderAuth()),
         ChangeNotifierProvider(create: (context) => HomeScreenProvider()),
-        //ChangeNotifierProvider(create: (context) => ProfilePictureProvider()),
+
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Fee Donations',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: ProfilePage(),
+        home:  BottomNavigationExample()
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 class TestingScreen extends StatefulWidget {
   const TestingScreen({Key? key}) : super(key: key);
