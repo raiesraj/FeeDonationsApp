@@ -1,13 +1,19 @@
 import 'package:feedonations/Constant/sized_box.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'custom_Text.dart';
 
-class RecentText extends StatelessWidget {
+class RecentText extends StatefulWidget {
   const RecentText({
     super.key,
   });
 
+  @override
+  State<RecentText> createState() => _RecentTextState();
+}
+
+class _RecentTextState extends State<RecentText> {
   @override
   Widget build(BuildContext context) {
     return Row(

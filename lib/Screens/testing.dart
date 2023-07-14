@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 import '../Constant/snackbar.dart';
 import '../Utilis/app_colors.dart';
 import '../Utilis/images.dart';
+
 //
 // class SendDataWithCatogoreis extends StatefulWidget {
 //   const SendDataWithCatogoreis({Key? key}) : super(key: key);
@@ -185,7 +186,8 @@ class DataFromFirebase extends StatelessWidget {
   final String data;
 
   const DataFromFirebase({
-    super.key, required this.data,
+    super.key,
+    required this.data,
   });
 
   @override
@@ -198,36 +200,25 @@ class DataFromFirebase extends StatelessWidget {
           .snapshots(),
       builder: (context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
           if (snapshot.hasData && snapshot.data != null) {
             return ListView.builder(
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
                   ///Getting Data bY calling userMap
                   Map<String, dynamic> userMap =
-                  snapshot.data!.docs[index].data()
-                  as Map<String, dynamic>;
+                      snapshot.data!.docs[index].data() as Map<String, dynamic>;
                   return Column(
                     children: [
-                      // Container(
-                      //   height: 100,
-                      //   width: 200,
-                      //   color: Colors.red,
-                      //    child: Column(
-                      //      children: [
-                      //        Image(
-                      //          fit: BoxFit.fitWidth,
-                      //          height: 80,
-                      //          image: NetworkImage(
-                      //    userMap["profilePic"].toString(),
-                      //        ),
-                      //        ),
-                      //        Text(userMap["name"]),
-                      //      ],
-                      //    )
-                      // ),
-                      BeautifulCard(imageUrl: userMap["profilePic"], userName: userMap["name"], fee: userMap['fee'],),
-
-
+                      BeautifulCard(
+                        imageUrl: userMap["profilePic"],
+                        userName: userMap["name"],
+                        fee: userMap['fee'],
+                        schoolName: userMap["school"],
+                        country: userMap["country"],
+                      ),
                     ],
                   );
                 });

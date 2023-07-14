@@ -1,6 +1,8 @@
+import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Provider/homescreen_provider.dart';
 import 'package:feedonations/Screens/Donations.dart';
 import 'package:feedonations/Screens/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +26,6 @@ class _BottomNavigationExampleState extends State<BottomNavigationExample> {
 
   final List<Widget> _screens = [
     const HomePageScreen(),
-
     const PostRequestScreen(),
     const RecentPost(),
 
@@ -38,7 +39,9 @@ class _BottomNavigationExampleState extends State<BottomNavigationExample> {
       bottomNavigationBar:Consumer<HomeScreenProvider>(
         builder: (context, bottomNavi, _){
           return bottomNavi.showBottomNavigationBar? _buildBottomNavigationBar()
-        : const SizedBox();}
+        : const Offstage(
+              offstage: true,
+              child: Text(""));}
 
       )
 
@@ -67,6 +70,30 @@ class _BottomNavigationExampleState extends State<BottomNavigationExample> {
       ),
     ],
 
+    );
+  }
+}
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({super.key});
+
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+
+  User? user = FirebaseAuth.instance.currentUser;
+  @override
+  Widget build(BuildContext context) {
+    return  Scaffold(
+      body: Column(
+        children: [
+          40.ph,
+          const Center(child: TopAppBar()),
+         Text(user!.email.toString()),
+          Text(user!.displayName.toString()),
+        ],
+      ),
     );
   }
 }

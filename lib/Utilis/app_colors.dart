@@ -10,6 +10,8 @@ class AppColor{
   static Color kHintTextColor = const Color.fromRGBO(157, 157, 157, 1);
   static Color kSearchBtnTextColor = const Color.fromRGBO(255, 255, 255, 1);
   static Color kducationBtnBgColor = const Color.fromRGBO(255, 97, 125, 0.07);
+  static Color iconColor = const Color.fromRGBO(84, 76, 76,100);
+  static Color profileContainerBgColor = const Color.fromRGBO(244, 244, 247,100);
 
 
 }

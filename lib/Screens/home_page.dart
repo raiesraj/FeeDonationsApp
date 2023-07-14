@@ -47,14 +47,22 @@ class _HomePageScreenState extends State<HomePageScreen> {
     fetchAllData();
   }
 
+
+
+
+
+
+///Recent Data From university Collection
   Future<void> fetchAllData() async {
     QuerySnapshot<Map<String, dynamic>> snapshot =
-        await _firestore.collection('University').get();
+        await _firestore.collection('RecentPost').get();
 
     setState(() {
       allData = snapshot.docs;
     });
   }
+
+
 
   Future<List<QueryDocumentSnapshot>> alphabetSearch(String searchTerm) async {
     List<QueryDocumentSnapshot> results = [];
@@ -213,6 +221,8 @@ class RecentRequestSearchFireBaseData extends StatelessWidget {
                     var docSnapshot = allData[index];
                     // Display the desired fields from the document
                     return BeautifulCard(
+                      country: docSnapshot.get("country"),
+                      schoolName: docSnapshot.get("school"),
                       imageUrl: docSnapshot.get("profilePic"),
                       userName: docSnapshot.get("name"),
                       fee: docSnapshot.get("fee"),
@@ -228,7 +238,9 @@ class RecentRequestSearchFireBaseData extends StatelessWidget {
                     return BeautifulCard(
                       imageUrl: docSnapshot.get("profilePic"),
                       userName: docSnapshot.get("name"),
-                      fee: '',
+                      fee: docSnapshot.get("fee"),
+                      schoolName: docSnapshot.get("school"),
+                      country: docSnapshot.get("country"),
                     );
                   },
                 ),
@@ -284,16 +296,7 @@ class _TopAppBarState extends State<TopAppBar> {
               ),
             );
           } else {
-            return Center(
-                child: InkWell(
-                    onTap: () {
-                      RoutingPage().gotoNextPage(
-                          context: context, gotoNextPage: const SignUpScreen());
-                    },
-                    child: Image.asset(
-                      AppImages().signupImg,
-                      width: 200,
-                    )));
+            return const SizedBox.shrink();
           }
         },
       );

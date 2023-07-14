@@ -3,13 +3,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedonations/Constant/bottom_navigation.dart';
 import 'package:feedonations/Constant/snackbar.dart';
-import 'package:feedonations/Utilis/app_colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +11,6 @@ import 'package:uuid/uuid.dart';
 
 import '../Components/dropdown.dart';
 import '../Routes/routes.dart';
-import '../Screens/Donations.dart';
-import '../Screens/university_screen.dart';
-import '../main.dart';
 
 class HomeScreenProvider with ChangeNotifier {
   bool isLoading = false;
@@ -34,7 +24,7 @@ class HomeScreenProvider with ChangeNotifier {
 
   String? selectedValue;
 
-  File? _profilePic;
+
 
   Widget myDropDown() {
     return CustomDropdownButton2(
@@ -60,15 +50,29 @@ class HomeScreenProvider with ChangeNotifier {
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  File? _profilePic;
   File? get profilePic => _profilePic;
 
-  Future<void> selectImage(context) async {
+  Future<void> removeImage(context) async{
+    if(_profilePic != null){
+      await _profilePic!.delete();
+      _profilePic = null;
+      AppSnackBar.snackBar(context, "Image removed");
+      notifyListeners();
+    }
+  }
+
+
+
+
+  Future<void> selectImage(ImageSource source, BuildContext context) async {
     final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+    final pickedImage = await picker.pickImage(source: source);
     if (pickedImage != null) {
       _profilePic = File(pickedImage.path);
       notifyListeners();
+
+
     } else {
       AppSnackBar.snackBar(context, "No Image Selected");
     }
@@ -81,16 +85,24 @@ class HomeScreenProvider with ChangeNotifier {
 
 
 
+
+
+
+
+
+
   void sendData(
       {required TextEditingController nameController,
+        required TextEditingController countryNameController,
+
       context,
-      required TextEditingController feeController}) async {
+      required TextEditingController feeController,required TextEditingController schoolNameController}) async {
     Timestamp timestamp = Timestamp.now();
     isLoading = true;
     showBottomNavigationBar = false;
     notifyListeners();
     if (selectedValue != null &&
-        nameController.text.isNotEmpty &&
+        nameController.text.isNotEmpty && feeController.text.isNotEmpty && schoolNameController.text.isNotEmpty &&
         profilePic != null) {
       UploadTask uploadTask = FirebaseStorage.instance
           .ref()
@@ -99,25 +111,30 @@ class HomeScreenProvider with ChangeNotifier {
           .putFile(profilePic!);
       TaskSnapshot taskSnapshot = await uploadTask;
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
       Map<String, dynamic> newUserData = {
         "name": nameController.text,
         "timestamp": timestamp,
         "value": selectedValue,
         "profilePic": downloadUrl,
-        "fee": feeController.text
+        "fee": feeController.text,
+        "school" : schoolNameController.text,
+        "country" : countryNameController.text
       };
-
       _firestore.collection(selectedValue.toString()).add(
             newUserData,
           );
+    final recentPost =  _firestore.collection("RecentPost");
+    if(sendDataToAnotherCollections == true){
+      recentPost.add(newUserData);
+    }
+
 
       isLoading = true;
       _profilePic = null;
       selectedValue = null;
       feeController.clear();
       nameController.clear();
-      showBottomNavigationBar = true;
+      countryNameController.clear();
       notifyListeners();
       AppSnackBar.snackBar(context, "Post Successful Done");
       isLoading = false;
@@ -132,6 +149,9 @@ class HomeScreenProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+   bool sendDataToAnotherCollections = false;
+
+
 
   bool _showBottomNavigationBar = true;
 

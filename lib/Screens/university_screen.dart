@@ -13,10 +13,10 @@ class _UniversityScreenState extends State<UniversityScreen> {
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(
-        title: Text("University"),
+        title: const Text("University"),
       ),
-      body: Column(
-        children: const [
+      body: const Column(
+        children: [
 
           Expanded(child: DataFromFirebase(data: "University"))
         ],
