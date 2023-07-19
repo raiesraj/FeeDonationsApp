@@ -12,6 +12,12 @@ class AppColor{
   static Color kducationBtnBgColor = const Color.fromRGBO(255, 97, 125, 0.07);
   static Color iconColor = const Color.fromRGBO(84, 76, 76,100);
   static Color profileContainerBgColor = const Color.fromRGBO(244, 244, 247,100);
-
+  static Color paymentBgColor = const Color.fromRGBO(246, 249, 255,100);
+  static Color paymentSecondBgColor = const Color.fromRGBO(255, 255, 255,100);
+  static Color paymentBtnBgColor = const Color.fromRGBO(99, 51, 157,100);
+  static Color payBankBgColor = const Color.fromRGBO(240, 234, 246,100);
+  static Color glassmorpheiumColor = const Color.fromRGBO(197, 191, 191,100);
+  static Color glassmorpheiumColor2 = const Color.fromRGBO(134, 133, 133,79);
+  static Color paymentIconColor = const Color.fromRGBO(121, 187, 181,100);
 
 }

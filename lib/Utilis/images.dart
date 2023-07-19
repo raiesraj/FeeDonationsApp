@@ -14,4 +14,6 @@ class AppImages{
   String avatarImg = ("assets/Images/avator.png");
   String galleryImg = ("assets/Images/Gallery.png");
   String noInternetImg = ("assets/Images/No internet.png");
+  String neoImg = ("assets/Images/neo.png");
+  String atmImg = ("assets/Images/atm.png");
 }

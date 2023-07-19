@@ -4,6 +4,7 @@ import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Provider/signin_provider.dart';
 import 'package:feedonations/Screens/sign_up.dart';
 import 'package:feedonations/Utilis/appText.dart';
+import 'package:feedonations/Utilis/app_colors.dart';
 import 'package:feedonations/Utilis/images.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,8 +62,10 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               30.ph,
               MyButton(
+                color: AppColor.paymentIconColor,
                 title: "LogIn",
                   onTaP: (){
+
                     signInProviderAuth.signInValidation(
                       context: context,
                         email: emailController, password: passwordController);

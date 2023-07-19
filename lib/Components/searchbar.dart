@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../Utilis/app_colors.dart';
 import 'custom_Text.dart';
 
-class SearchBar extends StatefulWidget {
-  const SearchBar({
+class CustomSearchBar extends StatefulWidget {
+  const CustomSearchBar({
   super.key,
   required,
   required this.onChanged,
@@ -16,10 +16,10 @@ class SearchBar extends StatefulWidget {
 final ValueChanged<String> onChanged;
 final VoidCallback onTap;
 @override
-State<SearchBar> createState() => _SearchBarState();
+State<CustomSearchBar> createState() => _CustomSearchBarState();
 }
 
-class _SearchBarState extends State<SearchBar> {
+class _CustomSearchBarState extends State<CustomSearchBar> {
   @override
   Widget build(BuildContext context) {
     return Padding(

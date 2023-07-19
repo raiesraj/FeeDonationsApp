@@ -1,11 +1,20 @@
+import 'dart:async';
 import 'dart:io';
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedonations/Constant/bottom_navigation.dart';
+import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Constant/snackbar.dart';
+import 'package:feedonations/Screens/home_page.dart';
+import 'package:feedonations/Screens/sign_up.dart';
+import 'package:feedonations/Utilis/app_colors.dart';
+import 'package:feedonations/Utilis/images.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,6 +23,9 @@ import '../Routes/routes.dart';
 
 class HomeScreenProvider with ChangeNotifier {
   bool isLoading = false;
+  String? selectedPayment = "";
+
+
 
   List<String> items = [
     "University",
@@ -53,8 +65,8 @@ class HomeScreenProvider with ChangeNotifier {
   File? _profilePic;
   File? get profilePic => _profilePic;
 
-  Future<void> removeImage(context) async{
-    if(_profilePic != null){
+  Future<void> removeImage(context) async {
+    if (_profilePic != null) {
       await _profilePic!.delete();
       _profilePic = null;
       AppSnackBar.snackBar(context, "Image removed");
@@ -62,47 +74,31 @@ class HomeScreenProvider with ChangeNotifier {
     }
   }
 
-
-
-
   Future<void> selectImage(ImageSource source, BuildContext context) async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: source);
     if (pickedImage != null) {
       _profilePic = File(pickedImage.path);
       notifyListeners();
-
-
     } else {
       AppSnackBar.snackBar(context, "No Image Selected");
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   void sendData(
       {required TextEditingController nameController,
-        required TextEditingController countryNameController,
-
+      required TextEditingController countryNameController,
       context,
-      required TextEditingController feeController,required TextEditingController schoolNameController}) async {
+      required TextEditingController feeController,
+      required TextEditingController schoolNameController}) async {
     Timestamp timestamp = Timestamp.now();
     isLoading = true;
     showBottomNavigationBar = false;
     notifyListeners();
     if (selectedValue != null &&
-        nameController.text.isNotEmpty && feeController.text.isNotEmpty && schoolNameController.text.isNotEmpty &&
+        nameController.text.isNotEmpty &&
+        feeController.text.isNotEmpty &&
+        schoolNameController.text.isNotEmpty &&
         profilePic != null) {
       UploadTask uploadTask = FirebaseStorage.instance
           .ref()
@@ -117,17 +113,16 @@ class HomeScreenProvider with ChangeNotifier {
         "value": selectedValue,
         "profilePic": downloadUrl,
         "fee": feeController.text,
-        "school" : schoolNameController.text,
-        "country" : countryNameController.text
+        "school": schoolNameController.text,
+        "country": countryNameController.text
       };
       _firestore.collection(selectedValue.toString()).add(
             newUserData,
           );
-    final recentPost =  _firestore.collection("RecentPost");
-    if(sendDataToAnotherCollections == true){
-      recentPost.add(newUserData);
-    }
-
+      final recentPost = _firestore.collection("RecentPost");
+      if (sendDataToAnotherCollections == true) {
+        recentPost.add(newUserData);
+      }
 
       isLoading = true;
       _profilePic = null;
@@ -149,9 +144,8 @@ class HomeScreenProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-   bool sendDataToAnotherCollections = false;
 
-
+  bool sendDataToAnotherCollections = false;
 
   bool _showBottomNavigationBar = true;
 
@@ -161,4 +155,56 @@ class HomeScreenProvider with ChangeNotifier {
     _showBottomNavigationBar = value;
     notifyListeners();
   }
+
+
+
+
+
+  void showPaymentDialog(BuildContext context,) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+                  return  AlertDialog(
+                    title: Text('Select Payment Method'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text("asds"),
+                          onTap: () {
+                            setSelectedOption(context, "asds");
+                            Navigator.pop(context);
+
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Payment Option 2'),
+                          onTap: () {
+                            setSelectedOption(context, "payment");
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+      },
+    );
+  }
+
+
+  String _selectedOption = '';
+  String get selectedOption => _selectedOption;
+
+   setSelectedOption(context, String option) {
+    _selectedOption = option;
+    notifyListeners();
+
+  }
+
+
+
+
 }
+
+
+

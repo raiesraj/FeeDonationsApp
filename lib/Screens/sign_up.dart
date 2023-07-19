@@ -21,6 +21,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
+  String?displayName;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +89,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 onTaP: () {
                   signUpAuthProvider.signUpValidation(
                       context: context,
-                      name: nameController,
+                      nameController: nameController,
                       email: emailController,
-                      password: passwordController);
+                      password: passwordController, displayName: nameController.text,
+                  );
                 },
               ),
               10.ph,
@@ -180,12 +184,13 @@ class ImageButton extends StatelessWidget {
 }
 
 class MyButton extends StatelessWidget {
-  final VoidCallback onTaP;
+  final VoidCallback? onTaP;
   final String title;
+  final Color? color;
 
   const MyButton({
     super.key,
-    required this.onTaP, required this.title,
+    required this.onTaP, required this.title, this.color,
   });
 
   @override
@@ -197,7 +202,7 @@ class MyButton extends StatelessWidget {
         height: 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
-          color: Colors.blue,
+          color: color,
         ),
         child:  Center(
           child: CustomText(

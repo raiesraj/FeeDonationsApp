@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:feedonations/Components/searchbar.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedonations/Components/custom_Text.dart';
@@ -55,7 +56,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 ///Recent Data From university Collection
   Future<void> fetchAllData() async {
     QuerySnapshot<Map<String, dynamic>> snapshot =
-        await _firestore.collection('RecentPost').get();
+        await _firestore.collection("RecentPost").orderBy("timestamp",descending: true).get();
 
     setState(() {
       allData = snapshot.docs;
@@ -115,7 +116,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
               ),
             ),
             10.ph,
-            SearchBar(
+            CustomSearchBar(
               onTap: () {
                 setState(() {
                   if (searchTerm.isNotEmpty) {

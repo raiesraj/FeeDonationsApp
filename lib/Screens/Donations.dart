@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feedonations/Constant/bottom_navigation.dart';
 import 'package:feedonations/Constant/sized_box.dart';
+import 'package:feedonations/Constant/snackbar.dart';
 import 'package:feedonations/Provider/homescreen_provider.dart';
+import 'package:feedonations/Provider/paymentProvider.dart';
 import 'package:feedonations/Routes/routes.dart';
 import 'package:feedonations/Screens/googlePay.dart';
+import 'package:feedonations/Screens/jazzcash_payment.dart';
 import 'package:feedonations/Screens/sign_up.dart';
 import 'package:feedonations/Screens/signin_screen.dart';
 import 'package:feedonations/Utilis/app_colors.dart';
@@ -10,9 +14,13 @@ import 'package:feedonations/Utilis/images.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_credit_card/credit_card_widget.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+
+import 'home_page.dart';
 
 class BeautifulCard extends StatelessWidget {
   final String imageUrl;
@@ -21,7 +29,7 @@ class BeautifulCard extends StatelessWidget {
   final String schoolName;
   final String country;
 
-  const BeautifulCard(
+  BeautifulCard(
       {super.key,
       required this.imageUrl,
       required this.userName,
@@ -40,6 +48,8 @@ class BeautifulCard extends StatelessWidget {
       },
     );
   }
+
+  TextEditingController paymentController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -122,15 +132,23 @@ class BeautifulCard extends StatelessWidget {
                       15.ph,
                       Row(
                         children: [
-                          const Text("Country: ",),
+                          const Text(
+                            "Country: ",
+                          ),
                           10.pw,
-                          Text(country, style: GoogleFonts.lato(
-                              fontSize: 16, fontWeight: FontWeight.w600),),
+                          Text(
+                            country,
+                            style: GoogleFonts.lato(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
                           const Spacer(),
-                         const Padding(
-                           padding: EdgeInsets.only(right: 10),
-                           child: Icon(Icons.flag_outlined,size: 20,),
-                         ),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.flag_outlined,
+                              size: 20,
+                            ),
+                          ),
                         ],
                       ),
                       Row(
@@ -147,7 +165,7 @@ class BeautifulCard extends StatelessWidget {
                           ),
                           const Spacer(),
                           Container(
-                            margin: EdgeInsets.only(top: 5),
+                            margin: const EdgeInsets.only(top: 5),
                             height: 43,
                             width: 70,
                             decoration: BoxDecoration(
@@ -160,7 +178,18 @@ class BeautifulCard extends StatelessWidget {
                                 splashColor: Colors.red,
                                 borderRadius: BorderRadius.circular(16),
                                 onTap: () {
-                                  showPaymentBottomSheet(context);
+                                  showModalBottomSheet(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    backgroundColor: AppColor.paymentBgColor,
+                                    // isDismissible: true,
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return  PaymentCard(paymentController: paymentController) ;
+                                    },
+                                  );
                                 },
                                 child: Center(
                                   child: Text(
@@ -186,31 +215,211 @@ class BeautifulCard extends StatelessWidget {
       },
     );
   }
+}
 
-  void showPaymentBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      // isDismissible: true,
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return const SizedBox(
-          height: 100,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PayBtn(),
-              ApplePay(),
-            ],
-          ),
-        );
-      },
-    );
+class PaymentCard extends StatefulWidget {
+  const PaymentCard({
+    super.key, required TextEditingController paymentController,
+
+  });
+
+
+
+  @override
+  State<PaymentCard> createState() => _PaymentCardState();
+}
+
+class _PaymentCardState extends State<PaymentCard> {
+
+
+
+  bool isShow = true;
+
+  @override
+  Widget build(BuildContext context) {
+    PaymentProvider paymentProvider = Provider.of<PaymentProvider>(context,listen: false);
+    return Consumer<HomeScreenProvider>(builder: (context,provider,_){
+      return  Container(
+        padding: const EdgeInsets.only(top: 0),
+        height: context.height * 8,
+        decoration: BoxDecoration(
+          color: AppColor.paymentSecondBgColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            30.ph,
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColor.paymentIconColor,
+                      size: 20,
+                    ),
+                    10.pw,
+                    Text(
+                      "Back",
+                      style: GoogleFonts.aBeeZee(
+                          color: AppColor.paymentIconColor, fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                "Payment",
+                style: GoogleFonts.actor(
+                    fontWeight: FontWeight.bold, fontSize: 25),
+              ),
+            ),
+            const Spacer(),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 34),
+              height: context.height * 0.7,
+              width: context.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.white,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 20, left: 15),
+                    child: TopAppBar(),
+                  ),
+                  15.ph,
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    height: 80,
+                    width: context.width,
+                    decoration: BoxDecoration(
+                      color: AppColor.paymentBgColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ListTile(
+                      onTap: () {
+                        provider.showPaymentDialog(context);
+                      },
+                      leading:  Icon(
+                        Icons.atm_sharp,
+                        size: 50,
+                      ),
+                      title:Text(provider.selectedOption.isNotEmpty ? provider.selectedOption : "Select Payment Method"),
+                      subtitle: const Text("MasterCard"),
+                      trailing: const Icon(Icons.arrow_right),
+                    ),
+                  ),
+                  const Spacer(),
+                  Center(
+                    child: Text(
+                      "Rs",
+                      style: GoogleFonts.aBeeZee(fontSize: 23),
+                    ),
+                  ),
+                  TextFormField(
+                    onChanged: (text){
+                    paymentProvider.calculateFivePercent();
+
+                    },
+                    style: GoogleFonts.aBeeZee(fontSize: 100),
+                    showCursor: false,
+                    controller: paymentProvider.paymentController,
+                    keyboardType: TextInputType.number,
+                    textAlign:
+                    TextAlign.center, // Text alignment set to center
+                    decoration: const InputDecoration(
+                      hintText: "0",
+                      hintStyle: TextStyle(fontSize: 100),
+                      border: InputBorder.none, // No underline
+                    ),
+                  ),
+                   Visibility(
+                     visible: paymentProvider.paymentController.text.isEmpty ? isShow = false : true,
+                       child: Center(
+                         child: Text("Remaining Amount ${paymentProvider.remainingAmount.toString()}"),
+                       ),
+                   ),
+                      Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 25.0),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 30),
+                      height: 40,
+                      width: context.width,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: AppColor.payBankBgColor,
+                      ),
+                      child: Row(
+                        children: [
+                          30.pw,
+                          Container(
+                            height: 30,
+                            width: 30,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColor.kducationBtnBgColor,
+                            ),
+                            child: Center(
+                              child: Text(
+                              paymentProvider.calculatedValue.toString(),
+                                style: GoogleFonts.actor(fontSize: 15),
+                              ),
+                            ),
+                          ),
+                          20.pw,
+                          Text(
+                            "Fee will be charged ",
+                            style: GoogleFonts.roboto(fontSize: 16),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 25),
+              child: MyButton(
+                onTaP:  provider.selectedOption.isNotEmpty ? (){
+                  performAction(context);
+                  paymentProvider.paymentController.clear();
+
+                } : AppSnackBar.snackBar(context, "Select payment Method"),
+                title: "Payment",
+                color: AppColor.paymentBtnBgColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
+}
+
+performAction(context){
+
+  final selectedOption = HomeScreenProvider().selectedOption;
+  if(selectedOption == "asds"){
+    AppSnackBar.snackBar(context, "asds");
+  }else{
+   if(selectedOption == "Payment Options 2"){
+     AppSnackBar.snackBar(context, "two");
+    }
+  }
+
 }
 
 class RecentPost extends StatefulWidget {
@@ -262,7 +471,11 @@ class _RecentPostState extends State<RecentPost> {
                     ProfileDetails(
                       iconData: Icons.person,
                       text: 'Edit Profile',
-                      onTap: () {},
+                      onTap: () {
+                        RoutingPage().gotoNextPage(
+                            context: context,
+                            gotoNextPage: const EditProfileScreen());
+                      },
                     ),
                     ProfileDetails(
                       iconData: Icons.security,
@@ -309,7 +522,8 @@ class _RecentPostState extends State<RecentPost> {
                       text: "Terms and Policy",
                       onTap: () {},
                     ),
-                    Consumer<HomeScreenProvider>(builder: (context, notifier, _){
+                    Consumer<HomeScreenProvider>(
+                        builder: (context, notifier, _) {
                       return Row(
                         children: [
                           Expanded(
@@ -319,8 +533,7 @@ class _RecentPostState extends State<RecentPost> {
                               onChanged: (value) {
                                 setState(() {
                                   notifier.sendDataToAnotherCollections = value;
-                                }
-                                );
+                                });
                               },
                             ),
                           ),
@@ -412,7 +625,9 @@ class ProfileText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 18),
+      padding: const EdgeInsets.only(
+        left: 18,
+      ),
       child: ListTile(
         title: Text(
           text,
@@ -451,9 +666,14 @@ class ProfileDetails extends StatelessWidget {
         title: Text(
           text,
           style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
-
         ),
       ),
     );
   }
 }
+
+
+
+
+
+

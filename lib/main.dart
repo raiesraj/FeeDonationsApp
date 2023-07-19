@@ -1,5 +1,8 @@
+import 'package:feedonations/Provider/paymentProvider.dart';
+import 'package:feedonations/Provider/profilescreenprovider.dart';
 import 'package:feedonations/Provider/signin_provider.dart';
 import 'package:feedonations/Provider/signup_provider.dart';
+import 'package:feedonations/Screens/jazzcash_payment.dart';
 import 'package:feedonations/Screens/sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,6 +45,8 @@ class _MyAppState extends State<MyApp> {
           ),
           ChangeNotifierProvider(create: (context) => SignInProviderAuth()),
           ChangeNotifierProvider(create: (context) => HomeScreenProvider()),
+          ChangeNotifierProvider(create: (context) => ProfileScreenProvider()),
+          ChangeNotifierProvider(create: (context) => PaymentProvider()),
 
         ],
         child: MaterialApp(
@@ -56,7 +61,7 @@ class _MyAppState extends State<MyApp> {
                 return Text('Error: ${snapshot.error}');
               } else {
                 if (snapshot.data == true) {
-                  return EditProfileScreen();
+                  return BottomNavigationExample();
                 } else {
                   return const SignUpScreen();
                 }
@@ -66,6 +71,9 @@ class _MyAppState extends State<MyApp> {
         ));
   }
 
+
+
+
   Future<bool> _checkLoginStatus() async {
     final user = _auth.currentUser;
     return user != null;
@@ -73,3 +81,57 @@ class _MyAppState extends State<MyApp> {
 
 
 }
+
+
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+//
+// void main() {
+//   runApp(MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return ChangeNotifierProvider(
+//       create: (context) => HomeScreenProvider(),
+//       child: MaterialApp(
+//         title: 'Modal Sheet Example',
+//         theme: ThemeData(
+//           primarySwatch: Colors.blue,
+//         ),
+//         home: YourMainWidget(),
+//       ),
+//     );
+//   }
+// }
+//
+// class HomeScreenProvider extends ChangeNotifier {
+//   String selectedOption = '';
+//
+//   void setSelectedOption(String option) {
+//     selectedOption = option;
+//     notifyListeners();
+//   }
+// }
+
+// class YourMainWidget extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     final provider = Provider.of<HomeScreenProvider>(context);
+//
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Modal Sheet Example'),
+//       ),
+//       body: Center(
+//         child: ElevatedButton(
+//           onPressed: () {
+//
+//           },
+//           child: Text('Open Modal Sheet'),
+//         ),
+//       ),
+//     );
+//   }
+//  }
