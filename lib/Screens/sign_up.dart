@@ -2,6 +2,7 @@ import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Provider/signup_provider.dart';
 import 'package:feedonations/Screens/signin_screen.dart';
 import 'package:feedonations/Utilis/appText.dart';
+import 'package:feedonations/Utilis/app_colors.dart';
 import 'package:feedonations/Utilis/images.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -85,6 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               28.ph,
               MyButton(
+                color: AppColor.kButtonColor,
                 title: "Sign Up",
                 onTaP: () {
                   signUpAuthProvider.signUpValidation(
@@ -96,12 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 },
               ),
               10.ph,
-              ImageButton(
-                  onTap: () {},
-                  signUpAuthProvider: signUpAuthProvider,
-                  nameController: nameController,
-                  emailController: emailController,
-                  passwordController: passwordController),
+
               32.ph,
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +198,7 @@ class MyButton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 27),
         height: 48,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(10),
           color: color,
         ),
         child:  Center(

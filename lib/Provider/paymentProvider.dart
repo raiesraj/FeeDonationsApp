@@ -1,12 +1,57 @@
 
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:jazzcash_flutter/jazzcash_flutter.dart';
 import 'package:provider/provider.dart';
 
 class PaymentProvider with ChangeNotifier{
 
+  String _name = '';
+  String get name => _name;
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  bool isShow = true;
+   fetchUserName() async {
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(auth.currentUser!.uid.toString())  // Replace with the actual document ID
+        .get();
+
+    if (documentSnapshot.exists) {
+      var data = documentSnapshot.data() as Map<String, dynamic>;
+
+        _name = data['name']?.toString() ?? '';
+        notifyListeners();
+
+      print(name);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+  bool _isSubmitDisabled = true;
+
   TextEditingController paymentController = TextEditingController();
+
+  TextEditingController get textEditingController => paymentController;
+
+  bool get isSubmitDisabled => _isSubmitDisabled;
+
+  void checkInputValue() {
+    _isSubmitDisabled = int.tryParse(paymentController.text) == 0;
+    notifyListeners();
+  }
+
 
   void dispose() {
     paymentController.dispose();
@@ -38,7 +83,9 @@ class PaymentProvider with ChangeNotifier{
   String merchantPassword = "3h9w49dx3e";
   String transactionUrl= "www.fiver.com";
 
-  payViaJazzCash(BuildContext context) async {
+
+
+  payViaJazzCash({required BuildContext context, required TextEditingController paymentController}) async {
     //PaymentProvider paymentProvider = Provider.of<PaymentProvider>(context);
     // print("clicked on Product ${element.name}");
 
@@ -80,7 +127,6 @@ class PaymentProvider with ChangeNotifier{
       return false;
     }
   }
- bool _isLoading = false;
 
 
 

@@ -19,5 +19,6 @@ class AppColor{
   static Color glassmorpheiumColor = const Color.fromRGBO(197, 191, 191,100);
   static Color glassmorpheiumColor2 = const Color.fromRGBO(134, 133, 133,79);
   static Color paymentIconColor = const Color.fromRGBO(121, 187, 181,100);
+  static Color appBarcolor = const Color.fromRGBO(6, 130, 70, 1);
 
 }

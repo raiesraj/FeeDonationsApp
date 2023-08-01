@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feedonations/Components/app_bar.dart';
+import 'package:feedonations/Constant/sized_box.dart';
+import 'package:feedonations/Screens/school_screen.dart';
 import 'package:feedonations/Screens/testing.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -37,23 +40,31 @@ class _OthersScreenState extends State<OthersScreen> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      body:Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Center(
-              child: isEmpty
-                  ? Lottie.network(
-                'https://assets1.lottiefiles.com/packages/lf20_0zomy8eb.json',
-                width: 500,
-                height: 300,
-                fit: BoxFit.contain,
-              )
-                  : const DataFromFirebase(data: "Others"),
-            ),
-          )
-        ],
+      appBar: MyAppBar(
+        title: "Others",
       ),
+      body: SclUniOthersBg(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            50.ph,
+            const SclUniTopArea(text: "Others Request"),
+            10.ph,
+            Expanded(
+              child: Center(
+                child: isEmpty
+                    ? Lottie.network(
+                  'https://assets1.lottiefiles.com/packages/lf20_0zomy8eb.json',
+                  width: 500,
+                  height: 300,
+                  fit: BoxFit.contain,
+                )
+                    : const DataFromFirebase(data: "Others"),
+              ),
+            )
+          ],
+        ),
+      )
     );
   }
 }

@@ -4,11 +4,13 @@ import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Constant/snackbar.dart';
 import 'package:feedonations/Provider/homescreen_provider.dart';
 import 'package:feedonations/Provider/paymentProvider.dart';
+import 'package:feedonations/Provider/profilescreenprovider.dart';
 import 'package:feedonations/Routes/routes.dart';
 import 'package:feedonations/Screens/googlePay.dart';
 import 'package:feedonations/Screens/jazzcash_payment.dart';
 import 'package:feedonations/Screens/sign_up.dart';
 import 'package:feedonations/Screens/signin_screen.dart';
+import 'package:feedonations/Screens/testing.dart';
 import 'package:feedonations/Utilis/app_colors.dart';
 import 'package:feedonations/Utilis/images.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,12 +19,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jazzcash_flutter/jazzcash_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'edit_profile_screen.dart';
 import 'home_page.dart';
 
-class BeautifulCard extends StatelessWidget {
+class BeautifulCard extends StatefulWidget {
   final String imageUrl;
   final String userName;
   final String fee;
@@ -37,19 +41,28 @@ class BeautifulCard extends StatelessWidget {
       required this.schoolName,
       required this.country});
 
+  @override
+  State<BeautifulCard> createState() => _BeautifulCardState();
+}
+
+class _BeautifulCardState extends State<BeautifulCard> {
   void _showImagePreview(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
           shadowColor: Colors.black,
-          child: Image.network(imageUrl),
+          child: Image.network(widget.imageUrl),
         );
       },
     );
   }
 
   TextEditingController paymentController = TextEditingController();
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +86,7 @@ class BeautifulCard extends StatelessWidget {
                       _showImagePreview(context);
                     },
                     child: Image.network(
-                      imageUrl,
+                      widget.imageUrl,
                       height: 180,
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent? loadingProgress) {
@@ -110,7 +123,7 @@ class BeautifulCard extends StatelessWidget {
                               ),
                               10.pw,
                               Text(
-                                userName,
+                                widget.userName,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -122,7 +135,7 @@ class BeautifulCard extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 15),
                             child: Text(
-                              'Rs  $fee',
+                              'Rs  ${widget.fee}',
                               style: GoogleFonts.aBeeZee(
                                   fontSize: 14, fontWeight: FontWeight.bold),
                             ),
@@ -137,7 +150,7 @@ class BeautifulCard extends StatelessWidget {
                           ),
                           10.pw,
                           Text(
-                            country,
+                            widget.country,
                             style: GoogleFonts.lato(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
@@ -159,7 +172,7 @@ class BeautifulCard extends StatelessWidget {
                           ),
                           10.pw,
                           Text(
-                            schoolName,
+                            widget.schoolName,
                             style: GoogleFonts.lato(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
@@ -187,9 +200,14 @@ class BeautifulCard extends StatelessWidget {
                                     isScrollControlled: true,
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return  PaymentCard(paymentController: paymentController) ;
+                                      return PaymentCard(
+                                          paymentController: paymentController);
                                     },
-                                  );
+                                  ).then((value){
+                                    setState(() {
+                                      paymentController.clear();
+                                    });
+                                  });
                                 },
                                 child: Center(
                                   child: Text(
@@ -219,27 +237,58 @@ class BeautifulCard extends StatelessWidget {
 
 class PaymentCard extends StatefulWidget {
   const PaymentCard({
-    super.key, required TextEditingController paymentController,
-
+    super.key,
+    required TextEditingController paymentController,
   });
-
-
 
   @override
   State<PaymentCard> createState() => _PaymentCardState();
 }
 
 class _PaymentCardState extends State<PaymentCard> {
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
 
 
 
-  bool isShow = true;
+
+  Future<void> fetchUserData() async {
+    PaymentProvider paymentProvider =
+        Provider.of<PaymentProvider>(context, listen: false);
+    await paymentProvider.fetchUserName();
+  }
 
   @override
   Widget build(BuildContext context) {
-    PaymentProvider paymentProvider = Provider.of<PaymentProvider>(context,listen: false);
-    return Consumer<HomeScreenProvider>(builder: (context,provider,_){
-      return  Container(
+    PaymentProvider paymentProvider =
+        Provider.of<PaymentProvider>(context, listen: false);
+    HomeScreenProvider homeScreenProvider =
+        Provider.of<HomeScreenProvider>(context);
+
+    performAction(context) {
+      final selectedOption = homeScreenProvider.selectedOption;
+      if (selectedOption == "JazzCash") {
+        paymentProvider.payViaJazzCash(
+            context: context,
+            paymentController: paymentProvider.paymentController);
+      } else {
+        if (selectedOption == "GooglePay") {
+          PayBtn();
+        }
+      }
+    }
+    void _handleTextChange() {
+      if (paymentProvider.paymentController.text.isEmpty) {
+        paymentProvider.paymentController.clear();
+      }
+    }
+    bool showText = true;
+
+    return Consumer<HomeScreenProvider>(builder: (context, provider, _) {
+      return Container(
         padding: const EdgeInsets.only(top: 0),
         height: context.height * 8,
         decoration: BoxDecoration(
@@ -293,9 +342,30 @@ class _PaymentCardState extends State<PaymentCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 15),
-                    child: TopAppBar(),
+                  Padding(
+                    padding: EdgeInsets.only(top: 15, left: 20),
+                    child: Row(
+                      children: [
+                        IgnorePointer(
+                          child: TopAppBar(),
+                          ignoring: true,
+                        ),
+                        30.pw,
+                        Consumer<PaymentProvider>(
+                            builder: (context, nameProvider, _) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                nameProvider.name,
+                                style: GoogleFonts.actor(fontSize: 22,fontWeight: FontWeight.w700),
+                              ),
+                              Text(FirebaseAuth.instance.currentUser!.email.toString(),style: GoogleFonts.lato(fontSize: 16,color: AppColor.glassmorpheiumColor2),),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
                   ),
                   15.ph,
                   Container(
@@ -310,12 +380,14 @@ class _PaymentCardState extends State<PaymentCard> {
                       onTap: () {
                         provider.showPaymentDialog(context);
                       },
-                      leading:  Icon(
-                        Icons.atm_sharp,
-                        size: 50,
+                      leading: Image.asset(
+                        AppImages().atmImg,
+                        width: 60,
                       ),
-                      title:Text(provider.selectedOption.isNotEmpty ? provider.selectedOption : "Select Payment Method"),
-                      subtitle: const Text("MasterCard"),
+                      title: Text(provider.selectedOption.isNotEmpty
+                          ? provider.selectedOption
+                          : "Select Payment Method"),
+                      subtitle: const Text("Payment Method"),
                       trailing: const Icon(Icons.arrow_right),
                     ),
                   ),
@@ -327,29 +399,30 @@ class _PaymentCardState extends State<PaymentCard> {
                     ),
                   ),
                   TextFormField(
-                    onChanged: (text){
-                    paymentProvider.calculateFivePercent();
-
+                    onChanged: (text) {
+                      paymentProvider.calculateFivePercent();
+                      paymentProvider.checkInputValue();
                     },
                     style: GoogleFonts.aBeeZee(fontSize: 100),
                     showCursor: false,
                     controller: paymentProvider.paymentController,
                     keyboardType: TextInputType.number,
-                    textAlign:
-                    TextAlign.center, // Text alignment set to center
-                    decoration: const InputDecoration(
-                      hintText: "0",
-                      hintStyle: TextStyle(fontSize: 100),
+                    textAlign: TextAlign.center, // Text alignment set to center
+                    decoration:  const InputDecoration(
+                      hintStyle: TextStyle(fontSize: 80),
                       border: InputBorder.none, // No underline
                     ),
                   ),
-                   Visibility(
-                     visible: paymentProvider.paymentController.text.isEmpty ? isShow = false : true,
-                       child: Center(
-                         child: Text("Remaining Amount ${paymentProvider.remainingAmount.toString()}"),
-                       ),
-                   ),
-                      Spacer(),
+                  Visibility(
+                    visible: paymentProvider.paymentController.text.isEmpty
+                        ? paymentProvider.isShow = false
+                        : true,
+                    child: Center(
+                      child: Text(
+                          "Remaining Amount ${paymentProvider.remainingAmount.toString()}"),
+                    ),
+                  ),
+                  const Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 25.0),
                     child: Container(
@@ -372,7 +445,7 @@ class _PaymentCardState extends State<PaymentCard> {
                             ),
                             child: Center(
                               child: Text(
-                              paymentProvider.calculatedValue.toString(),
+                                paymentProvider.calculatedValue.toString(),
                                 style: GoogleFonts.actor(fontSize: 15),
                               ),
                             ),
@@ -393,11 +466,24 @@ class _PaymentCardState extends State<PaymentCard> {
             Padding(
               padding: const EdgeInsets.only(bottom: 25),
               child: MyButton(
-                onTaP:  provider.selectedOption.isNotEmpty ? (){
-                  performAction(context);
-                  paymentProvider.paymentController.clear();
+                onTaP: () {
+                  if (paymentProvider.isSubmitDisabled) {
+                    Navigator.of(context).pop();
+                    _handleTextChange();
+                    AppSnackBar.snackBar(context, "Check Amount and try again");
+                  } else {
+                    if (provider.selectedOption.isNotEmpty) {
+                      performAction(context);
+                    } else {
+                      Navigator.of(context).pop();
+                      _handleTextChange();
 
-                } : AppSnackBar.snackBar(context, "Select payment Method"),
+                      AppSnackBar.snackBar(
+                          context, "Check payment method and try again");
+                    }
+
+                  }
+                },
                 title: "Payment",
                 color: AppColor.paymentBtnBgColor,
               ),
@@ -405,215 +491,12 @@ class _PaymentCardState extends State<PaymentCard> {
           ],
         ),
       );
-    });
-  }
-}
-
-performAction(context){
-
-  final selectedOption = HomeScreenProvider().selectedOption;
-  if(selectedOption == "asds"){
-    AppSnackBar.snackBar(context, "asds");
-  }else{
-   if(selectedOption == "Payment Options 2"){
-     AppSnackBar.snackBar(context, "two");
-    }
-  }
-
-}
-
-class RecentPost extends StatefulWidget {
-  const RecentPost({Key? key}) : super(key: key);
-
-  @override
-  State<RecentPost> createState() => _RecentPostState();
-}
-
-class _RecentPostState extends State<RecentPost> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black,
-          ),
-        ),
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          "Settings",
-          style: GoogleFonts.actor(
-              fontSize: 22, color: Colors.black, fontWeight: FontWeight.w800),
-        ),
-        backgroundColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const ProfileText(
-              text: "Account",
-            ),
-            Container(
-                margin: const EdgeInsets.symmetric(horizontal: 35),
-                height: 180,
-                width: MediaQuery.sizeOf(context).width,
-                decoration: BoxDecoration(
-                  color: AppColor.profileContainerBgColor,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Column(
-                  children: [
-                    ProfileDetails(
-                      iconData: Icons.person,
-                      text: 'Edit Profile',
-                      onTap: () {
-                        RoutingPage().gotoNextPage(
-                            context: context,
-                            gotoNextPage: const EditProfileScreen());
-                      },
-                    ),
-                    ProfileDetails(
-                      iconData: Icons.security,
-                      text: "Security",
-                      onTap: () {},
-                    ),
-                    ProfileDetails(
-                      iconData: Icons.notifications,
-                      text: "Notifications",
-                      onTap: () {},
-                    ),
-                    ProfileDetails(
-                      iconData: Icons.lock,
-                      text: "Privacy",
-                      onTap: () {},
-                    ),
-                  ],
-                )),
-            const ProfileText(
-              text: 'Support And About',
-            ),
-            Container(
-                margin: const EdgeInsets.symmetric(horizontal: 35),
-                height: 160,
-                width: MediaQuery.sizeOf(context).width,
-                decoration: BoxDecoration(
-                  color: AppColor.profileContainerBgColor,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Column(
-                  children: [
-                    ProfileDetails(
-                      iconData: Icons.workspace_premium,
-                      text: 'My Subscriptions',
-                      onTap: () {},
-                    ),
-                    ProfileDetails(
-                      iconData: Icons.contact_support_outlined,
-                      text: "Help and Support",
-                      onTap: () {},
-                    ),
-                    ProfileDetails(
-                      iconData: Icons.policy,
-                      text: "Terms and Policy",
-                      onTap: () {},
-                    ),
-                    Consumer<HomeScreenProvider>(
-                        builder: (context, notifier, _) {
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: SwitchListTile(
-                              title: const Text("Recent Req"),
-                              value: notifier.sendDataToAnotherCollections,
-                              onChanged: (value) {
-                                setState(() {
-                                  notifier.sendDataToAnotherCollections = value;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    })
-                  ],
-                )),
-            const ProfileText(
-              text: "Actions",
-            ),
-            Container(
-                margin: const EdgeInsets.symmetric(horizontal: 35),
-                height: 85,
-                width: MediaQuery.sizeOf(context).width,
-                decoration: BoxDecoration(
-                  color: AppColor.profileContainerBgColor,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Column(
-                  children: [
-                    ProfileDetails(
-                      iconData: Icons.manage_accounts,
-                      text: "Add account",
-                      onTap: () {
-                        RoutingPage().gotoNextPage(
-                          context: context,
-                          gotoNextPage: const SignUpScreen(),
-                        );
-                      },
-                    ),
-                    ProfileDetails(
-                      iconData: Icons.login_outlined,
-                      text: "LogOut",
-                      onTap: () async {
-                        _showLogoutConfirmationDialog(context);
-                      },
-                    ),
-                  ],
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showLogoutConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Log Out Confirmation'),
-          content: const Text('Are you sure you want to log out?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text(
-                'No',
-                style: GoogleFonts.actor(fontSize: 17, color: Colors.black),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-                RoutingPage().gotoNextPage(
-                    context: context, gotoNextPage: const SignUpScreen());
-              },
-              child: Text(
-                'Yes',
-                style: GoogleFonts.actor(fontSize: 16, color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
+    },
     );
   }
 }
+
+
 
 class ProfileText extends StatelessWidget {
   final String text;
@@ -671,9 +554,3 @@ class ProfileDetails extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-

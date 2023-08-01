@@ -170,18 +170,18 @@ class HomeScreenProvider with ChangeNotifier {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
-                          title: Text("asds"),
+                          title: Text("JazzCash"),
                           onTap: () {
-                            setSelectedOption(context, "asds");
-                            Navigator.pop(context);
+                            setSelectedOption(context, "JazzCash");
+                            Navigator.of(context).pop();
 
                           },
                         ),
                         ListTile(
-                          title: Text('Payment Option 2'),
+                          title: Text('GooglePay'),
                           onTap: () {
-                            setSelectedOption(context, "payment");
-                            Navigator.pop(context);
+                            setSelectedOption(context, "GooglePay");
+                            Navigator.of(context).pop();
                           },
                         ),
                       ],

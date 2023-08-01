@@ -1,6 +1,8 @@
 import 'package:country_picker/country_picker.dart';
+import 'package:feedonations/Components/app_bar.dart';
 import 'package:feedonations/Constant/sized_box.dart';
 import 'package:feedonations/Screens/sign_up.dart';
+import 'package:feedonations/Utilis/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -133,6 +135,7 @@ class _PostRequestScreenState extends State<PostRequestScreen> {
                     hintText: "Name",
                     keyboardType: TextInputType.text,
                   ),
+                  10.ph,
                   CustomTextFiled(controller: countryNameController, hintText: "Select Country", keyboardType: TextInputType.none,
                   showCursor: false,
                   suffixIcon: Icons.arrow_drop_down,
@@ -149,11 +152,13 @@ class _PostRequestScreenState extends State<PostRequestScreen> {
                       );
                     },
                   ),
+                  10.ph,
                   CustomTextFiled(
                     controller: schoolNameController,
                     hintText: "Institute",
                     keyboardType: TextInputType.name,
                   ),
+                  10.ph,
                   CustomTextFiled(
                     controller: feeController,
                     hintText: "Fee",
@@ -161,6 +166,7 @@ class _PostRequestScreenState extends State<PostRequestScreen> {
                   ),
                   20.ph,
                   MyButton(
+                    color: AppColor.kButtonColor,
                       onTaP: () {
                         homeScreenProvider.myDropDown();
                         homeScreenProvider.sendData(

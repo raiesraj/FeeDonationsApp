@@ -5,7 +5,12 @@ import 'package:flutter/material.dart';
 class AppSnackBar {
   static  snackBar(BuildContext context, String toastMessage) {
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(toastMessage.toString())));
+        .showSnackBar(
+      SnackBar
+      (content: Text(toastMessage.toString()),
+      ),
+
+    );
   }
 
 

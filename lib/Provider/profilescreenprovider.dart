@@ -8,10 +8,12 @@ class ProfileScreenProvider with ChangeNotifier{
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  TextEditingController profileName = TextEditingController();
+
 
   String _currentName = "";
 
-  void getName({required TextEditingController profileName ,context,}) {
+   getName({required TextEditingController profileName ,context,}) {
     FirebaseFirestore.instance
         .collection('users')
         .doc(_auth.currentUser!.uid) // Replace 'user_id' with the actual user ID
@@ -27,7 +29,7 @@ class ProfileScreenProvider with ChangeNotifier{
     });
   }
 
-  void updateName({required TextEditingController profileName ,context}) {
+   updateName({required TextEditingController profileName ,context}) {
     String newName = profileName.text;
     if (newName.isNotEmpty) {
       FirebaseFirestore.instance
